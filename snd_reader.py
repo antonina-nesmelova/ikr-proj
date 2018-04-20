@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
 
 import os
+import ikrlib as ikr
+
 
 TARGET_TRAIN = 'data' + os.sep + 'target_train'
 NONTARGET_TRAIN = 'data' + os.sep + 'non_target_train'
@@ -11,8 +12,14 @@ def getTrain_TargetFeatures():
     """
     Loads extracted features from training set of target files.
     """
-    features = wav16khz2mfcc(TARGET_TRAIN)
-    return features.toList()
+    features = ikr.wav16khz2mfcc(TARGET_TRAIN)
+    result = []
+    for feature in features.values():
+        result.append(feature.tolist())
+    for i in result:
+        print(len(i))
+    print(len(result))
+    return result
 
 def getTrain_NonTargetFeatures():
     raise NotImplementedError('Action not implemented yet!')
