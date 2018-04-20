@@ -12,21 +12,22 @@ TRAIN = True
 def getSoundScore():
 
     # get data
-    #target = loader.getTrain_TargetFeatures()
-    #nontarget = loader.getTrain_NonTargetFeatures()
+    target = loader.getTrain_TargetFeatures()
+    nontarget = loader.getTrain_NonTargetFeatures()
     #lib.plotFeatures(target,nontarget)
 
     # train
-    #recog.train(target, nontarget)
+    recog.train(target, None)
 
     if TRAIN:
+        pass
         # validate target
-        target = loader.getTest_TargetFeatures()
-        target_score = [recog.classify(sample) for sample in target]
+        #target = loader.getTest_TargetFeatures()
+        #target_score = [recog.classify(sample) for sample in target]
 
         # validate nontarget
-        nontarget = loader.getTest_NonTargetFeatures()
-        nontarget_score = [recog.classify(sample) for sample in nontarget]
+        #nontarget = loader.getTest_NonTargetFeatures()
+        #nontarget_score = [recog.classify(sample) for sample in nontarget]
 
         # evaluate score
     else:

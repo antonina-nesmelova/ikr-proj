@@ -52,6 +52,7 @@ ll_f = logpdf_gauss(test_m[0], np.mean(train_f, axis=0), np.var(train_f, axis=0)
 
 # Plot the frame-by-frame likelihoods obtained with the two models; Note that
 # 'll_m' and 'll_f' are log likelihoods, so we need to use exp function
+print('x')
 plt.figure() 
 plt.plot(np.exp(ll_m), 'b')
 plt.plot(np.exp(ll_f), 'r')

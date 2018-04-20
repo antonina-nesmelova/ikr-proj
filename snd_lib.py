@@ -22,11 +22,11 @@ def getFeatures(directory):
     mfcc = ikr.wav16khz2mfcc(directory).values()
 
     # return in lists
-    features = []
-    for coef in mfcc:
-        features.append(coef.tolist())
+    #features = []
+    #for coef in mfcc:
+    #    features.append(coef.tolist())
 
-    return features
+    return np.vstack(mfcc)
 
 def plotFeatures(features, nonfeatures):
     # verticalize inputs
