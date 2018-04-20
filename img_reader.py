@@ -18,36 +18,19 @@ from numpy import cov
 from numpy.linalg import eig
 
 from skimage import filters
-#target_dev = png2fea('target_dev/').values()
-#target_train = png2fea('target_train/').values()
-#non_target_dev = png2fea('non_target_dev/').values()
-#non_target_train = png2fea('non_target_train/').values()
-
-#target = np.vstack((target_dev, target_train))
-#non_target = np.vstack((non_target_dev, non_target_train))
-
-#image = misc.imread('target_train/m431_01_p01_i0_0.png')
 
 TARGET_DEV = 'data/target_dev/'
 NONTARGET_DEV = 'data/non_target_dev'
-TARGET_TEST = 'data/target_test'
-NONTARGET_TEST = 'data/non_target_test'
+TARGET_TRAIN = 'data/target_train'
+NONTARGET_TRAIN = 'data/non_target_train'
 
 def weightedAverage(pixel):
     """ Truns pixel to greyscale. """
     return 0.299*pixel[0] + 0.587*pixel[1] + 0.114*pixel[2]
 
 def getTargetFeatures():
-    pass
-
-def getNonTargetFeatures():
-    pass
-
-
-def main():
-    
     result_array = np.array([])
-    for f in glob(dir_name + '/*.png'):
+    for f in glob(TARGET_TRAIN + '/*.png'):
         image = misc.imread(f)
         grey = np.zeros((image.shape[0], image.shape[1]))
         for rownum in range(len(image)):
@@ -55,12 +38,7 @@ def main():
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
         result_array = np.append(result_array, grey)
         edges = filters.sobel(grey)
-        plt.imshow(edges, cmap = cm.Greys_r) #load
-        plt.show()
-    print(result_array.shape)
     result_array = result_array.reshape(10,6400)
-    print(result_array.shape)
-    print(result_array)
     A = result_array
     print(A.shape)
     # calculate the mean of each column
@@ -74,15 +52,35 @@ def main():
     print(V)
     # eigendecomposition of covariance matrix
     values, vectors = eig(V)
-    print(vectors)
-    print(values)
+    return values, vectors 
+    pass
 
-    print(vectors.shape)
-    print(values.shape)
-    # project data
-    P = vectors.T.dot(C.T)
-    print(P.T)
-
+def getNonTargetFeatures():
+    result_array = np.array([])
+    for f in glob(NONTARGET_TRAIN + '/*.png'):
+        image = misc.imread(f)
+        grey = np.zeros((image.shape[0], image.shape[1]))
+        for rownum in range(len(image)):
+            for colnum in range(len(image[rownum])):
+                grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
+        result_array = np.append(result_array, grey)
+        edges = filters.sobel(grey)
+    result_array = result_array.reshape(10,6400)
+    A = result_array
+    print(A.shape)
+    # calculate the mean of each column
+    M = mean(A.T, axis=1)
+    print(M)
+    # center columns by subtracting column means
+    C = A - M
+    print(C)
+    # calculate covariance matrix of centered matrix
+    V = cov(C.T)
+    print(V)
+    # eigendecomposition of covariance matrix
+    values, vectors = eig(V)
+    return values, vectors 
+    pass
 
 
 if __name__ == "__main__":
