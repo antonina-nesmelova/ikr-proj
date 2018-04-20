@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 import matplotlib.pyplot as plt
-import sklearn
-from ikrlib import png2fea, raw8khz2mfcc, logpdf_gauss, train_gauss, train_gmm, logpdf_gmm
 import scipy.linalg
 import numpy as np
-from numpy.random import randint
 from scipy import misc
 import matplotlib.pyplot as plt # import
 from sklearn.decomposition import PCA
