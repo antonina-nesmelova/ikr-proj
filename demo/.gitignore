@@ -1,0 +1,4 @@
+
+# python bad stuff
+__pycache__/
+*.pyc
