@@ -7,23 +7,31 @@ import sys
 import snd_reader as sr
 import img_reader as img
 
+TRAIN = True
+
 def getSoundScore():
+
     # get data
-    target = loader.getTrain_TargetFeatures()
-    nontarget = loader.getTrain_NonTargetFeatures()
-    lib.plotFeatures(target,nontarget)
+    #target = loader.getTrain_TargetFeatures()
+    #nontarget = loader.getTrain_NonTargetFeatures()
+    #lib.plotFeatures(target,nontarget)
 
     # train
-    #recog.train(target,nontarget)
+    #recog.train(target, nontarget)
 
-    # validate target
-    #target = loader.getTest_TargetFeatures()
-    #target_score = [recog.classify(sample) for sample in target]
+    if TRAIN:
+        # validate target
+        target = loader.getTest_TargetFeatures()
+        target_score = [recog.classify(sample) for sample in target]
 
-    # validate nontarget
-    #nontarget = loader.getTest_NonTargetFeatures()
-    #nontarget_score = [recog.classify(sample) for sample in nontarget]
+        # validate nontarget
+        nontarget = loader.getTest_NonTargetFeatures()
+        nontarget_score = [recog.classify(sample) for sample in nontarget]
 
+        # evaluate score
+    else:
+        pass
+        # read real data
 
    
 
@@ -32,12 +40,12 @@ def getImageScore():
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-	print('Usage: ./main [--image | --sound]', file=sys.stderr)
-	exit() 
+	    print('Usage: ./main [--image | --sound]', file=sys.stderr)
+	    exit() 
     if sys.argv[1] == '--image':
     	getImageScore()
     elif sys.argv[1] == '--sound':
-	getSoundScore()
-    elif:
-	print('Usage: ./main [--image | --sound]', file=sys.stderr)
-	exit()
+	    getSoundScore()
+    else:
+	    print('Usage: ./main [--image | --sound]', file=sys.stderr)
+	    exit()

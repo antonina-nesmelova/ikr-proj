@@ -14,7 +14,7 @@ from numpy import mean
 from numpy import cov
 from numpy.linalg import eig
 
-from skimage import filter
+from skimage import filters
 
 TARGET_DEV = 'data/target_dev/'
 NONTARGET_DEV = 'data/non_target_dev'

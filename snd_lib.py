@@ -37,25 +37,9 @@ def plotFeatures(features, nonfeatures):
     n = len(features)
 
     # covariant matrix of all
-    #cov_tot = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
-    # take 2 largest eigenvalues and corresponding eigenvectors
-    #d, e = scipy.linalg.eigh(cov_tot, eigvals=(dim-3, dim-2))
-
-    # count pca
-    #features_pca = features.dot(e)
-    #nonfeatures_pca = nonfeatures.dot(e)
-
-    # show
-    #plt.plot(nonfeatures_pca[:,1], nonfeatures_pca[:,0], 'r.', ms=1)
-    #plt.plot(features_pca[:,1], features_pca[:,0], 'b.', ms=1)
-    #plt.show()
-
-
-    # covariant matrix of all
     cov = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
-    print(cov.shape)
     # take 2 largest eigenvalues and corresponding eigenvectors
-    df, ef = scipy.linalg.eigh(cov, eigvals=(dim-5, dim-4))
+    df, ef = scipy.linalg.eigh(cov, eigvals=(dim-2, dim-1))
 
     # count pca
     features_pca = features.dot(ef)
