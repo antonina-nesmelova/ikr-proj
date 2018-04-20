@@ -14,7 +14,7 @@ from numpy import mean
 from numpy import cov
 from numpy.linalg import eig
 
-from skimage import filters
+from skimage import filter
 
 TARGET_DEV = 'data/target_dev/'
 NONTARGET_DEV = 'data/non_target_dev'
@@ -34,22 +34,9 @@ def getTrain_TargetFeatures():
             for colnum in range(len(image[rownum])):
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
         result_array = np.append(result_array, grey)
-        edges = filters.sobel(grey)
-    result_array = result_array.reshape(10,6400)
-    A = result_array
-    print(A.shape)
-    # calculate the mean of each column
-    M = mean(A.T, axis=1)
-    print(M)
-    # center columns by subtracting column means
-    C = A - M
-    print(C)
-    # calculate covariance matrix of centered matrix
-    V = cov(C.T)
-    print(V)
-    # eigendecomposition of covariance matrix
-    values, vectors = eig(V)
-    return values, vectors 
+        edges = filter.sobel(grey)
+    result_array = result_array.reshape(20,6400)
+    return result_array
 
 def getTrain_NonTargetFeatures():
     result_array = np.array([])
@@ -60,22 +47,11 @@ def getTrain_NonTargetFeatures():
             for colnum in range(len(image[rownum])):
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
         result_array = np.append(result_array, grey)
-        edges = filters.sobel(grey)
-    result_array = result_array.reshape(10,6400)
-    A = result_array
-    print(A.shape)
-    # calculate the mean of each column
-    M = mean(A.T, axis=1)
-    print(M)
-    # center columns by subtracting column means
-    C = A - M
-    print(C)
-    # calculate covariance matrix of centered matrix
-    V = cov(C.T)
-    print(V)
-    # eigendecomposition of covariance matrix
-    values, vectors = eig(V)
-    return values, vectors 
+        edges = filter.sobel(grey)
+    print(result_array.shape)
+    result_array = result_array.reshape(132,6400)
+    print(result_array.shape)
+    return result_array
 
 def getTest_TargetFeatures():
     result_array = np.array([])
@@ -86,22 +62,9 @@ def getTest_TargetFeatures():
             for colnum in range(len(image[rownum])):
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
         result_array = np.append(result_array, grey)
-        edges = filters.sobel(grey)
+        edges = filter.sobel(grey)
     result_array = result_array.reshape(10,6400)
-    A = result_array
-    print(A.shape)
-    # calculate the mean of each column
-    M = mean(A.T, axis=1)
-    print(M)
-    # center columns by subtracting column means
-    C = A - M
-    print(C)
-    # calculate covariance matrix of centered matrix
-    V = cov(C.T)
-    print(V)
-    # eigendecomposition of covariance matrix
-    values, vectors = eig(V)
-    return values, vectors 
+    return result_array
 
 def getTest_NonTargetFeatures():
     result_array = np.array([])
@@ -112,8 +75,16 @@ def getTest_NonTargetFeatures():
             for colnum in range(len(image[rownum])):
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
         result_array = np.append(result_array, grey)
-        edges = filters.sobel(grey)
-    result_array = result_array.reshape(10,6400)
+        edges = filter.sobel(grey)
+    result_array = result_array.reshape(60,6400)
+    return result_array
+
+def getVectors():
+    target = getTest_TargetFeatures()
+    nonetarget = getTest_NonTargetFeatures()
+    print(target.shape)
+    print(nonetarget.shape)
+    result_array = np.vstack([target, nonetarget])
     A = result_array
     print(A.shape)
     # calculate the mean of each column
@@ -126,9 +97,13 @@ def getTest_NonTargetFeatures():
     V = cov(C.T)
     print(V)
     # eigendecomposition of covariance matrix
-    values, vectors = eig(V)
-    return values, vectors 
-
+    dim = target.shape[1]
+    values, vectors = scipy.linalg.eigh(V,  eigvals=(dim-2, dim-1))
+    train_T_pca = target.dot(vectors)
+    train_N_pca = nonetarget.dot(vectors)
+    plt.plot(train_T_pca[:,1]^2, train_T_pca[:,0]^2, 'b.', ms=1)
+    plt.plot(train_N_pca[:,1]^2, train_N_pca[:,0]^2, 'r.', ms=1)
+    plt.show()
 
 if __name__ == "__main__":
     raise NotImplementedError('This module is not executable!')
