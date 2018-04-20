@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import snd_reader as sr
+import img_reader as img
 
 
 def main():
-    train_features = sr.getTrain_TargetFeatures()
-    print(train_features)
+    img.getVectors()
 
 
 if __name__ == '__main__':
