@@ -1,32 +1,29 @@
 #!/usr/bin/env python3
 
-import snd_reader as loader
-import snd_recognizer as recog
-import snd_lib as lib
 import sys
-import snd_reader as sr
 import img_reader as img
+import snd_lib as lib
 
 TRAIN = True
 
 def getSoundScore():
 
     # get data
-    target = loader.getTrain_TargetFeatures()
-    nontarget = loader.getTrain_NonTargetFeatures()
+    target = lib.getFeatures( lib.TARGET_DEV )
+    nontarget = lib.getFeatures( lib.NONTARGET_DEV )
     #lib.plotFeatures(target,nontarget)
 
     # train
-    recog.train(target, None)
+    lib.train(target, nontarget)
 
     if TRAIN:
         pass
         # validate target
-        #target = loader.getTest_TargetFeatures()
+        #target = lib.getFeatures( lib.TARGET_DEV )
         #target_score = [recog.classify(sample) for sample in target]
 
         # validate nontarget
-        #nontarget = loader.getTest_NonTargetFeatures()
+        #nontarget = lib.getFeatures( lib.NONTARGET_DEV )
         #nontarget_score = [recog.classify(sample) for sample in nontarget]
 
         # evaluate score

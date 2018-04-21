@@ -14,7 +14,7 @@ from scipy.ndimage import imread
 from scipy.spatial.distance import cdist
 from scipy.misc import logsumexp
 import scipy.fftpack
-from scipy.signal import lfilter as lflt
+
 
 def k_nearest_neighbours(test_data, class1, class2, k):
     euclidean = cdist(np.r_[class1, class2], test_data)
@@ -224,14 +224,14 @@ def mel_filter_bank(nfft, nbands, fs, fstart=0, fend=None):
       fend = 0.5 * fs
 
     cbin = np.round(mel_inv(np.linspace(mel(fstart), mel(fend), nbands + 2)) / fs * nfft).astype(int)
-    mfb = np.zeros((nfft // 2 + 1, nbands))
-    for ii in range(nbands):
+    mfb = np.zeros((nfft / 2 + 1, nbands))
+    for ii in xrange(nbands):
         mfb[cbin[ii]:  cbin[ii+1]+1, ii] = np.linspace(0., 1., cbin[ii+1] - cbin[ii]   + 1)
         mfb[cbin[ii+1]:cbin[ii+2]+1, ii] = np.linspace(1., 0., cbin[ii+2] - cbin[ii+1] + 1)
     return mfb
 
 def framing(a, window, shift=1):
-    shape = ((a.shape[0] - window) // shift + 1, window) + a.shape[1:]
+    shape = ((a.shape[0] - window) / shift + 1, window) + a.shape[1:]
     strides = (a.strides[0]*shift,a.strides[0]) + a.strides[1:]
     return np.lib.stride_tricks.as_strided(a, shape=shape, strides=strides)
 
@@ -241,7 +241,7 @@ def spectrogram(x, window, noverlap=None, nfft=None):
     if nfft     is None:    nfft     = window.size
     x = framing(x, window.size, window.size-noverlap)
     x = scipy.fftpack.fft(x*window, nfft)
-    return x[:,:x.shape[1]//2+1]
+    return x[:,:x.shape[1]/2+1]
 
 def mfcc(s, window, noverlap, nfft, fs, nbanks, nceps):
     #MFCC Mel Frequency Cepstral Coefficients
@@ -264,7 +264,7 @@ def mfcc(s, window, noverlap, nfft, fs, nbanks, nceps):
     # Add low level noise (40dB SNR) to avoid log of zeros 
     snrdb = 40
     noise = rand(s.shape[0])
-    s = s + noise.dot(norm(s, 2)) // norm(noise, 2) // (10 ** (snrdb / 20))
+    s = s + noise.dot(norm(s, 2)) / norm(noise, 2) / (10 ** (snrdb / 20))
 
     mfb = mel_filter_bank(nfft, nbanks, fs, 32)
     dct_mx = scipy.fftpack.idct(np.eye(nceps, nbanks), norm='ortho') # the same DCT as in matlab
@@ -296,7 +296,6 @@ def wav16khz2mfcc(dir_name):
         print('Processing file: ', f)
         rate, s = wavfile.read(f)
         assert(rate == 16000)
-        s = optimize(s)
         features[f] = mfcc(s, 400, 240, 512, 16000, 23, 13)
     return features
 
@@ -397,28 +396,3 @@ def demo_gmm():
     for j in range(m2):
         gellipse(mus2[:, j], covs2[j, :, :], 100, 'b', lw=round(ws2[j] * 10), ax=ax2)
     plt.show()
-
-
-
-#### New ####
-
-def optimize(signal):
-
-    # Two second timer
-    if len(signal) < 20000:
-        return array([])
-    else:
-        signal = signal[20000:]
-
-    # Averaging filter
-    magic_devider = 50
-    s_div = len(signal) // magic_devider 
-    flt =   ones(s_div) /  s_div
-
-    # Averaging
-    proc_tmp = lflt(flt, 1, abs(signal))
-
-    noise_border = max(proc_tmp) / 8 # <- magic constant
-    low_sound = max(proc_tmp) / 6 # <- magic constant
-
-    return array([rs for fs, rs in zip(proc_tmp, signal) if fs > noise_border and abs(rs) > low_sound ]) 
