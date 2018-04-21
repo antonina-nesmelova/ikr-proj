@@ -22,6 +22,13 @@ def getFeatures(directory):
     mfcc = ikr.wav16khz2mfcc(directory).values()
     return np.vstack(mfcc)
 
+def processFeatures(features, nonfeatures):
+    cov = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
+    w,v = np.linalg.eig(cov)
+    f_pca = features.dot(v)
+    nf_pca = nonfeatures.dot(v)
+    return f_pca, nf_pca
+
 def plotFeatures(features, nonfeatures):
     # verticalize inputs
     features = np.vstack(features)
@@ -29,16 +36,13 @@ def plotFeatures(features, nonfeatures):
     # get size
     dim = features.shape[1]
     n = len(features)
-
     # covariant matrix of all
     cov = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
     # take 2 largest eigenvalues and corresponding eigenvectors
-    df, ef = scipy.linalg.eigh(cov, eigvals=(dim-2, dim-1))
-
+    df, ef = scipy.linalg.eigh(cov, eigvals=(dim-4, dim-3))
     # count pca
     features_pca = features.dot(ef)
     nonfeatures_pca = nonfeatures.dot(ef)
-
     # show
     plt.plot(nonfeatures_pca[:,1], nonfeatures_pca[:,0], 'r.', ms=1)
     plt.plot(features_pca[:,1], features_pca[:,0], 'b.', ms=1)
@@ -81,11 +85,19 @@ def train(features, nonfeatures):
     ll_f = ikr.logpdf_gauss(features,np.mean(features,axis=0),np.var(features,axis=0))
     ll_n = ikr.logpdf_gauss(nonfeatures,np.mean(nonfeatures,axis=0),np.var(nonfeatures,axis=0))
 
-    print(np.exp(ll_f))
-    plt.figure()
-    plt.plot(np.exp(ll_f), 'b')
-    plt.plot(np.exp(ll_n), 'r')
-    plt.show()
+    print(ll_f.shape)
+    print(ll_n.shape)
+    plotFeatures(ll_f, ll_n)
+    #plt.figure()
+    #plt.plot(np.exp(ll_f), 'b')
+    #plt.plot(np.exp(ll_n), 'r')
+    #plt.show()
+
+    #post = np.exp(ll_f)*POSTER /(np.exp(ll_f)*POSTER + np.exp(ll_n)*POSTER_NON)
+    #plt.figure()
+    #plt.plot(posterior_m, 'b')
+    #plt.plot(1- posterior_m, 'r')
+    #plt.show()
 
 def classify(sample):
     data = np.array(sample)

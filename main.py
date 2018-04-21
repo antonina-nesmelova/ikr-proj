@@ -13,6 +13,8 @@ def getSoundScore():
     nontarget = lib.getFeatures( lib.NONTARGET_DEV )
     #lib.plotFeatures(target,nontarget)
 
+    target,nontarget = lib.processFeatures(target,nontarget)
+
     # train
     lib.train(target, nontarget)
 
