@@ -29,7 +29,7 @@ def processFeatures(features, nonfeatures):
     nf_pca = nonfeatures.dot(v)
     return f_pca, nf_pca
 
-def plotFeatures(features, nonfeatures):
+def plotFeatures(features, nonfeatures, x=4,y=3):
     # verticalize inputs
     features = np.vstack(features)
     nonfeatures = np.vstack(nonfeatures)
@@ -39,7 +39,7 @@ def plotFeatures(features, nonfeatures):
     # covariant matrix of all
     cov = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
     # take 2 largest eigenvalues and corresponding eigenvectors
-    df, ef = scipy.linalg.eigh(cov, eigvals=(dim-4, dim-3))
+    df, ef = scipy.linalg.eigh(cov, eigvals=(dim-x, dim-y))
     # count pca
     features_pca = features.dot(ef)
     nonfeatures_pca = nonfeatures.dot(ef)
@@ -47,6 +47,7 @@ def plotFeatures(features, nonfeatures):
     plt.plot(nonfeatures_pca[:,1], nonfeatures_pca[:,0], 'r.', ms=1)
     plt.plot(features_pca[:,1], features_pca[:,0], 'b.', ms=1)
     plt.show()
+    
 
 
 
@@ -80,32 +81,28 @@ def plotFeatures(features, nonfeatures):
 
 POSTER = 0.5
 POSTER_NON = 1 - POSTER
+target_gauss = []
+nontarget_gauss = []
 
 def train(features, nonfeatures):
-    ll_f = ikr.logpdf_gauss(features,np.mean(features,axis=0),np.var(features,axis=0))
-    ll_n = ikr.logpdf_gauss(nonfeatures,np.mean(nonfeatures,axis=0),np.var(nonfeatures,axis=0))
+    target_gauss.append( ikr.train_gauss(features) )
+    nontarget_gauss.append( ikr.train_gauss(nonfeatures) )
 
-    print(ll_f.shape)
-    print(ll_n.shape)
-    plotFeatures(ll_f, ll_n)
-    #plt.figure()
-    #plt.plot(np.exp(ll_f), 'b')
-    #plt.plot(np.exp(ll_n), 'r')
-    #plt.show()
-
-    #post = np.exp(ll_f)*POSTER /(np.exp(ll_f)*POSTER + np.exp(ll_n)*POSTER_NON)
-    #plt.figure()
-    #plt.plot(posterior_m, 'b')
-    #plt.plot(1- posterior_m, 'r')
-    #plt.show()
+    ikr.gellipse(target_gauss[0][0][0:2], target_gauss[0][1][0:2,0:2])
+    #print(mu_f.shape)
+    #print(cov_f.shape)
 
 def classify(sample):
-    data = np.array(sample)
-    #print(data.shape)
     
     # mean
-    mu = np.mean(np.mean(np.r_[data], axis=0), axis=0)
-    print(mu)
+    t = []
+    for i in target_gauss:
+        t.append(*ikr.logpdf_gauss(sample, i[0], i[1]))
+    n = []
+    for i in nontarget_gauss:
+        n.append(*ikr.logpdf_gauss(sample, i[0], i[1]))
+    
+    return max(max(t), max(n)) + 495
 
     # eigen numbers and vectors
     #n, v = scipy.linalg.eigh(data)
