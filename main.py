@@ -8,45 +8,53 @@ import sys
 
 TRAIN = True
 
+def mergeWithin(x):
+    res = []
+    for n in x:
+        for i in n:
+            res.append(i)
+    return np.array(res)
+
 def getSoundScore():
 
     # get data
-    target = lib.getFeatures( lib.TARGET_DEV )
-    #print(target.values())
-    nontarget = lib.getFeatures( lib.NONTARGET_DEV )
+    target,_ = lib.getFeatures( lib.TARGET_TRAIN )
+    nontarget,_ = lib.getFeatures( lib.NONTARGET_TRAIN )
     
     # this works just wierd
     #target,nontarget = lib.processFeatures(target,nontarget)
 
-    lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
-    
+    #lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
+    lib.train(mergeWithin(target), mergeWithin(nontarget))
+
     if TRAIN:
         # validate target
-        target = lib.getFeatures( lib.TARGET_DEV )
+        target, target_name = lib.getFeatures( lib.TARGET_DEV )
         target_score = {}
-        for sample in target.keys():
-            target_score[sample] = lib.classify(target[sample])
+        for i,record in enumerate(target):
+            target_score[ target_name[i] ] = lib.classify( record )
 
         # validate nontarget
-        nontarget = lib.getFeatures( lib.NONTARGET_DEV )
+        nontarget, nontarget_name = lib.getFeatures( lib.NONTARGET_DEV )
         nontarget_score = {}
-        for sample in nontarget.keys():
-            nontarget_score[sample] = lib.classify(nontarget[sample])
+        for i,record in enumerate(nontarget):
+            nontarget_score[ nontarget_name[i] ] = lib.classify( record )
 
         # evaluate score
         ts = 0
-        for c in target_score:
+        for c in target_score.values():
             if c > 0:
                 ts += 1
         ns = 0
-        for c in nontarget_score:
+        for c in nontarget_score.values():
             if c <= 0:
                 ns += 1
 
         print("target score:", ts/len(target_score) *100 )
         print("nontarget score:", ns/len(nontarget_score) *100 )
 
-        print(target)
+        #print(target)
+        #print(nontarget)
         
 
 
@@ -74,11 +82,12 @@ def fusion():
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
-    assert len(soundSc) == len(imgSc) "Sound recognition number of files is different from image"
+    assert(len(soundSc) == len(imgSc))
 
     result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
     for file, results in result.values():
-        print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
+        pass
+        #print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
 
 
 if __name__ == '__main__':
