@@ -40,24 +40,17 @@ def getFeatures(directory):
 
 
 def train(x1, x2):
-    print(x1)
     global target_gauss
     global nontarget_gauss
-##
-    print(x1)
     mu1, cov1 = ikr.train_gauss(x1)
     mu2, cov2 = ikr.train_gauss(x2)
     p1 = p2 = 0.5
-##
     m1 = 2
-##
     # Initialize mean vectors to randomly selected data points from corresponding class
     mus1 = x1[np.random.randint(1, len(x1), m1)]
-##
     # Initialize all covariance matrices to the same covariance matrices computed using
     # all the data from the given class
     covs1 = [cov1] * m1
-##
     # Use uniform distribution as initial guess for the weights
     ws1 = np.ones(m1) / m1
 ##
@@ -81,7 +74,6 @@ def classify(record):
         mscore = 0
         for ws,mu,cov in zip(*target_gauss):
             mscore += ikr.logpdf_gauss(sample,mu,cov)*ws
-        #print(mscore)
         for ws,mu,cov in zip(*nontarget_gauss):
             mscore -= ikr.logpdf_gauss(sample,mu,cov)*ws
         score += mscore

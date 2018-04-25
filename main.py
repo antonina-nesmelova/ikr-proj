@@ -5,8 +5,9 @@ import train_img as train
 import snd_lib as lib
 import numpy as np
 import sys
+import os
 
-TRAIN = True
+TRAIN = False
 
 def mergeWithin(x):
     res = []
@@ -24,9 +25,9 @@ def getSoundScore():
     # this works just wierd
     #target,nontarget = lib.processFeatures(target,nontarget)
 
-    #lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
     lib.train(mergeWithin(target), mergeWithin(nontarget))
 
+    # train
     if TRAIN:
         # validate target
         target, target_name = lib.getFeatures( lib.TARGET_DEV )
@@ -53,14 +54,20 @@ def getSoundScore():
         print("target score:", ts/len(target_score) *100 )
         print("nontarget score:", ns/len(nontarget_score) *100 )
 
-        #print(target)
-        #print(nontarget)
-        
 
-
+    # read real data
     else:
-        pass
-        # read real data
+        loc = 'data'+os.sep+'test'
+        data,dataname = lib.getFeatures(loc)
+        
+        score = {}
+        for i,d in enumerate(data):
+            score[ dataname[i] ] = lib.classify(d)
+        print(score)
+
+        return score
+
+        
 
    
 
