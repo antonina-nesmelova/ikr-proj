@@ -7,7 +7,11 @@ import os
 import ikrlib as ikr
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.mlab as mlab
 import scipy
+import math
+import seaborn as sns
+sns.set(color_codes=True)
 
 TARGET_TRAIN = 'data' + os.sep + 'target_train'
 NONTARGET_TRAIN = 'data' + os.sep + 'non_target_train'
@@ -20,7 +24,15 @@ def getFeatures(directory):
     """
     # get mfcc features
     mfcc = ikr.wav16khz2mfcc(directory).values()
-    return np.vstack(mfcc)
+    #return np.vstack(mfcc)
+    #result = np.array( np.array([*k]) for n in mfcc for k in n )
+    result = []
+    for n in mfcc:
+        for k in n:
+            result.append( np.array([*k]) )
+            #result = np.concatenate((result, [np.array([*k])]))
+            #result.concatenate(np.array([*k]))
+    return np.array(result)
 
 def processFeatures(features, nonfeatures):
     cov = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
@@ -44,9 +56,10 @@ def plotFeatures(features, nonfeatures, x=4,y=3):
     features_pca = features.dot(ef)
     nonfeatures_pca = nonfeatures.dot(ef)
     # show
-    plt.plot(nonfeatures_pca[:,1], nonfeatures_pca[:,0], 'r.', ms=1)
-    plt.plot(features_pca[:,1], features_pca[:,0], 'b.', ms=1)
-    plt.show()
+    #plt.plot(nonfeatures_pca[:,1], nonfeatures_pca[:,0], 'r.', ms=1)
+    #plt.plot(features_pca[:,1], features_pca[:,0], 'b.', ms=1)
+    #plt.show()
+    return features_pca, nonfeatures_pca
     
 
 
@@ -84,16 +97,70 @@ POSTER_NON = 1 - POSTER
 target_gauss = []
 nontarget_gauss = []
 
-def train(features, nonfeatures):
-    target_gauss.append( ikr.train_gauss(features) )
-    nontarget_gauss.append( ikr.train_gauss(nonfeatures) )
+def train(x1, x2):
+    global target_gauss
+    global nontarget_gauss
+    print(x1)
+    print(x2)
+    sigmoid  = lambda x: logistic_sigmoid(ikr.logpdf_gauss(x, mu1, cov1) + np.log(p1) - logpdf_gauss(x, mu2, cov2) - np.log(p2))
+    #target_gauss.append( ikr.train_gauss(x1) )
+    #nontarget_gauss.append( ikr.train_gauss(x2) )
+##
+    mu1, cov1 = ikr.train_gauss(x1)
+    mu2, cov2 = ikr.train_gauss(x2)
+    p1 = p2 = 0.5
+##
+    # Plot the data
+    #plt.plot(x1[:,0], x1[:,1], 'r.', x2[:,0], x2[:,1], 'b.')
+    #ikr.gellipse(mu1, cov1, 100, 'r')
+    #ikr.gellipse(mu2, cov2, 100, 'b')
+    #ax = plt.axis()
+    #plt.show()
+##
+    m1 = 2
+##
+    # Initialize mean vectors to randomly selected data points from corresponding class
+    mus1 = x1[np.random.randint(1, len(x1), m1)]
+##
+    # Initialize all covariance matrices to the same covariance matrices computed using
+    # all the data from the given class
+    covs1 = [cov1] * m1
+##
+    # Use uniform distribution as initial guess for the weights
+    ws1 = np.ones(m1) / m1
+##
+    m2 = 2
+    mus2 = x2[np.random.randint(1, len(x2), m2)]
+    covs2 = [cov2] * m2
+    ws2 = np.ones(m2) / m2
+##
+    for i in range(30):
+        #plt.plot(x1[:,0], x1[:,1], 'r.', x2[:,0], x2[:,1], 'b.')
+        #for w, m, c in zip(ws1, mus1, covs1): gellipse(m, c, 100, 'r', lw=round(w * 10))
+        #for w, m, c in zip(ws2, mus2, covs2): gellipse(m, c, 100, 'b', lw=round(w * 10))
+        ws1, mus1, covs1, ttl1 = ikr.train_gmm(x1, ws1, mus1, covs1)
+        ws2, mus2, covs2, ttl2 = ikr.train_gmm(x2, ws2, mus2, covs2)
+        print('Total log-likelihood: %s for class X1; %s for class X2' % (ttl1, ttl2))
+        #plt.show()
+##
+    target_gauss = (ws1, mus1, covs1)
+    nontarget_gauss = (ws2, mus2, covs2)
 
-    ikr.gellipse(target_gauss[0][0][0:2], target_gauss[0][1][0:2,0:2])
+
+    
+
+    #ikr.gellipse(target_gauss[0][0][0:2], target_gauss[0][1][0:2,0:2])
     #print(mu_f.shape)
     #print(cov_f.shape)
 
 def classify(sample):
-    
+    score = 0
+    for ws,mu,cov in zip(*target_gauss):
+        score += ikr.logpdf_gauss(sample,mu,cov)*ws
+    for ws,mu,cov in zip(*nontarget_gauss):
+        score -= ikr.logpdf_gauss(sample,mu,cov)*ws
+    return score[0] + 10
+##
     # mean
     t = []
     for i in target_gauss:
@@ -101,10 +168,40 @@ def classify(sample):
     n = []
     for i in nontarget_gauss:
         n.append(*ikr.logpdf_gauss(sample, i[0], i[1]))
-    
+
     return max(max(t), max(n)) + 495
 
     # eigen numbers and vectors
     #n, v = scipy.linalg.eigh(data)
     
     #print(n)
+
+#regr_coefs = []
+#def train(features, nonfeatures):
+#    for dim in range(0,len(features[0])):
+#        fdata = np.array( [i[dim] for i in features] )
+#        ndata = np.array( [i[dim] for i in nonfeatures] )
+
+#        fmu, fdev = np.mean(fdata,axis=0), np.std(fdata,axis=0)
+#        nmu, ndev = np.mean(ndata,axis=0), np.std(ndata,axis=0)
+
+#        mu = abs(fmu-nmu) / (nmu+fmu)
+#        if fmu > nmu:
+#            mu *= nmu
+#            mu += nmu
+#        else:
+#            mu *= fmu
+#            mu = fmu
+        
+#        dev = (fdev+ndev)/2.
+#        if fmu < nmu:
+#            dev *= -1
+
+#        regr_coefs.append( (mu, dev) )
+
+#def classify(sample):
+#    score = 0
+#    for i,c in enumerate(regr_coefs):
+#        mu,dev = c
+#        score += (sample[i] - mu) * dev * 100
+#    return score

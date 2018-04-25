@@ -12,9 +12,10 @@ def getSoundScore():
 
     # get data
     target = lib.getFeatures( lib.TARGET_TRAIN )
+    print(target)
     nontarget = lib.getFeatures( lib.NONTARGET_TRAIN )
     
-    target,nontarget = lib.processFeatures(target,nontarget)
+    #target,nontarget = lib.processFeatures(target,nontarget)
 
     # train
     # not separated enough
