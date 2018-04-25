@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import snd_reader as sr
 import img_reader as img
 import train_img as train
 import snd_lib as lib
@@ -8,6 +9,8 @@ import sys
 
 import snd_reader as sr
 import matplotlib.pyplot as plt
+
+from operator import add
 
 from operator import add
 
