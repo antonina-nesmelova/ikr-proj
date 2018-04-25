@@ -292,12 +292,13 @@ def wav16khz2mfcc(dir_name):
     and values and 2D numpy arrays of MFCC features.
     """
     features = {}
-    for f in glob(dir_name + '/*.wav'):
-        print('Processing file: ', f)
-        rate, s = wavfile.read(f)
-        assert(rate == 16000)
-        s = optimize(s)
-        features[f] = mfcc(s, 400, 240, 512, 16000, 23, 13)
+    for num, f in enumerate(glob(dir_name + '/*.wav')):
+        if num % 16 == 0:
+            print('Processing file: ', f)
+            rate, s = wavfile.read(f)
+            assert(rate == 16000)
+            s = optimize(s)
+            features[f] = mfcc(s, 400, 240, 512, 16000, 23, 13)
     return features
 
 
@@ -399,9 +400,6 @@ def demo_gmm():
     plt.show()
 
 
-
-#### New ####
-
 def optimize(signal):
 
     # Two second timer
@@ -421,4 +419,7 @@ def optimize(signal):
     noise_border = max(proc_tmp) / 8 # <- magic constant
     low_sound = max(proc_tmp) / 6 # <- magic constant
 
-    return array([rs for fs, rs in zip(proc_tmp, signal) if fs > noise_border and abs(rs) > low_sound ]) 
+    normed_result = array([rs for fs, rs in zip(proc_tmp, signal) if fs > noise_border and abs(rs) > low_sound ]).astype('float64')
+    mean = np.mean(vstack(normed_result).T, axis=1)
+    normed_result -= mean
+    return normed_result.astype('int16')
