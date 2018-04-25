@@ -17,12 +17,6 @@ def getGauss(target, nonetarget):
     M = mean(A.T, axis=1)
     print(M)
 
-    #B = test_target
-    #M1 = mean(B.T, axis=1)
-
-    #D = test_nonetarget
-    #M2 = mean(D.T, axis=1)
-
     D = nonetarget
     M3 = mean(D.T, axis=1)
 
@@ -88,11 +82,11 @@ def getGauss(target, nonetarget):
         ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
         print('Total log-likelihood: %s for class X1;' % (ttl1))
 
-    plt.figure(1);
+    plt.figure('First two vectors');
     plt.plot(tar[:,0], tar[:,1], 'r.', ntar[:,0], ntar[:,1], 'b.')
     for w, m, c in zip(ws1, mus1, covs1): gellipse(m, c, 3000, 'r', lw=round(w * 10))
     for w, m, c in zip(ws2, mus2, covs2): gellipse(m, c, 3000, 'b', lw=round(w * 10))
-    plt.show()
+    
 
     fw = ws1
     fm = mus1
@@ -113,11 +107,11 @@ def getGauss(target, nonetarget):
     mu1, cov1 = train_gauss(tar)
     mu2, cov2 = train_gauss(ntar)
 
-    plt.plot(tar[:,0], tar[:,1], 'r.', ntar[:,0], ntar[:,1], 'b.')
-    gellipse(mu1, cov1, 100, 'r')
-    gellipse(mu2, cov2, 100, 'b')
-    ax = plt.axis()
-    plt.show()
+    #plt.plot(tar[:,0], tar[:,1], 'r.', ntar[:,0], ntar[:,1], 'b.')
+    #gellipse(mu1, cov1, 100, 'r')
+    #gellipse(mu2, cov2, 100, 'b')
+    #ax = plt.axis()
+    #plt.show()
 
     p1 = p2 = 0.5
     # Train and test with GMM models with full covariance matrices
@@ -146,7 +140,7 @@ def getGauss(target, nonetarget):
         ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
         print('Total log-likelihood: %s for class X1;' % (ttl1))
     
-    plt.figure(2);
+    plt.figure('Second two vectors');
     plt.plot(tar[:,0], tar[:,1], 'r.', ntar[:,0], ntar[:,1], 'b.')
     for w, m, c in zip(ws1, mus1, covs1): gellipse(m, c, 3000, 'r', lw=round(w * 10))
     for w, m, c in zip(ws2, mus2, covs2): gellipse(m, c, 3000, 'b', lw=round(w * 10))
@@ -178,6 +172,7 @@ def getScore(test, ws, mus, covs, vector):
         ll1 = logpdf_gmm(tst, ws, mus, covs)
         score.append(sum(ll1) + np.log(nt))
     print(score)
+    return score
 
 
 
