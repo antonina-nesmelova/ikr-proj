@@ -11,39 +11,29 @@ TRAIN = True
 def getSoundScore():
 
     # get data
-    target = lib.getFeatures( lib.TARGET_TRAIN )
-    print(target)
-    nontarget = lib.getFeatures( lib.NONTARGET_TRAIN )
+    target = lib.getFeatures( lib.TARGET_DEV )
+    #print(target.values())
+    nontarget = lib.getFeatures( lib.NONTARGET_DEV )
     
+    # this works just wierd
     #target,nontarget = lib.processFeatures(target,nontarget)
 
-    # train
-    # not separated enough
-    #lib.plotFeatures(target,nontarget,2,1)
-    #lib.plotFeatures(target,nontarget,3,1)
-    #lib.plotFeatures(target,nontarget,3,2)
-    #lib.plotFeatures(target,nontarget,4,1)
-    #lib.plotFeatures(target,nontarget,4,2)
-    #lib.plotFeatures(target,nontarget,4,3)
-    #lib.plotFeatures(target,nontarget,5,1)
-    #lib.plotFeatures(target,nontarget,5,2)
-    #lib.plotFeatures(target,nontarget,5,3)
-    #lib.plotFeatures(target,nontarget,5,4)
-
-    lib.train(target, nontarget)
+    lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
     
     if TRAIN:
         # validate target
         target = lib.getFeatures( lib.TARGET_DEV )
-        target_score = [lib.classify(sample) for sample in target]
+        target_score = {}
+        for sample in target.keys():
+            target_score[sample] = lib.classify(target[sample])
 
         # validate nontarget
         nontarget = lib.getFeatures( lib.NONTARGET_DEV )
-        nontarget_score = [lib.classify(sample) for sample in nontarget]
+        nontarget_score = {}
+        for sample in nontarget.keys():
+            nontarget_score[sample] = lib.classify(nontarget[sample])
 
         # evaluate score
-        print(target_score[0:50])
-        print(nontarget_score[0:50])
         ts = 0
         for c in target_score:
             if c > 0:
@@ -52,8 +42,11 @@ def getSoundScore():
         for c in nontarget_score:
             if c <= 0:
                 ns += 1
+
         print("target score:", ts/len(target_score) *100 )
         print("nontarget score:", ns/len(nontarget_score) *100 )
+
+        print(target)
         
 
 

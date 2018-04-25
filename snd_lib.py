@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 import scipy
 import math
-import seaborn as sns
-sns.set(color_codes=True)
 
 TARGET_TRAIN = 'data' + os.sep + 'target_train'
 NONTARGET_TRAIN = 'data' + os.sep + 'non_target_train'
@@ -23,16 +21,14 @@ def getFeatures(directory):
     Loads extracted features *.wav files at given directory.
     """
     # get mfcc features
-    mfcc = ikr.wav16khz2mfcc(directory).values()
-    #return np.vstack(mfcc)
-    #result = np.array( np.array([*k]) for n in mfcc for k in n )
-    result = []
-    for n in mfcc:
-        for k in n:
-            result.append( np.array([*k]) )
-            #result = np.concatenate((result, [np.array([*k])]))
-            #result.concatenate(np.array([*k]))
-    return np.array(result)
+    mfcc = ikr.wav16khz2mfcc(directory)
+
+    # convert features
+    result = {}
+    for n in mfcc.keys():
+        for k in mfcc[n]:
+            result[ n.split('/')[-1][:-4] ] = np.array(k)
+    return result
 
 def processFeatures(features, nonfeatures):
     cov = np.cov(np.vstack([features, nonfeatures]).T, bias=True)
@@ -98,10 +94,9 @@ target_gauss = []
 nontarget_gauss = []
 
 def train(x1, x2):
+    print(x1)
     global target_gauss
     global nontarget_gauss
-    print(x1)
-    print(x2)
     sigmoid  = lambda x: logistic_sigmoid(ikr.logpdf_gauss(x, mu1, cov1) + np.log(p1) - logpdf_gauss(x, mu2, cov2) - np.log(p2))
     #target_gauss.append( ikr.train_gauss(x1) )
     #nontarget_gauss.append( ikr.train_gauss(x2) )
@@ -159,7 +154,7 @@ def classify(sample):
         score += ikr.logpdf_gauss(sample,mu,cov)*ws
     for ws,mu,cov in zip(*nontarget_gauss):
         score -= ikr.logpdf_gauss(sample,mu,cov)*ws
-    return score[0] + 10
+    return score
 ##
     # mean
     t = []
