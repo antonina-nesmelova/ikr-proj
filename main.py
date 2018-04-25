@@ -76,6 +76,18 @@ def getImageScore():
 	train.getScore(test_target, w[0], m[0], c[0], v1)
 	train.getScore(test_target, w[1], m[1], c[1], v2)
 
+
+def fusion():
+    soundSc = getSoundScore()
+    imgSc = getImageScore()
+
+    assert len(soundSc) == len(imgSc) "Sound recognition number of files is different from image"
+
+    result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
+    for file, results in result.values():
+        print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
 	    print('Usage: ./main [--image | --sound]', file=sys.stderr)
