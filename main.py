@@ -18,7 +18,7 @@ def getSoundScore():
     # this works just wierd
     #target,nontarget = lib.processFeatures(target,nontarget)
 
-    lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
+    lib.train( target, nontarget )
     
     if TRAIN:
         # validate target
@@ -74,11 +74,11 @@ def fusion():
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
-    assert len(soundSc) == len(imgSc) "Sound recognition number of files is different from image"
+    assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
 
     result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
     for file, results in result.values():
-        print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
+        print("File: - {}\nSound {}\tImage{}".format(file, result[0], result[1]))
 
 
 if __name__ == '__main__':
