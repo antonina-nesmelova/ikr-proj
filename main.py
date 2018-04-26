@@ -2,7 +2,7 @@
 
 import img_reader as img
 import train_img as train
-import snd_lib as lib
+import snd_lib as snd
 import numpy as np
 import sys
 import os
