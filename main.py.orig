@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import snd_reader as sr
 import img_reader as img
 import train_img as train
 import snd_lib as lib
@@ -7,6 +8,7 @@ import numpy as np
 import sys
 import os
 
+import snd_reader as sr
 import matplotlib.pyplot as plt
 
 from operator import add
@@ -36,10 +38,15 @@ def getSoundScore():
     # this works just wierd
     #target,nontarget = lib.processFeatures(target,nontarget)
 
+<<<<<<< HEAD
+    lib.train( target, nontarget )
+    
+=======
     #lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
     lib.train(mergeWithin(target), mergeWithin(nontarget))
 
     # train
+>>>>>>> d0d522b3700b60dbb7420ca899982c571ace7a83
     if TRAIN:
         # validate target
         target, target_name = lib.getFeatures( lib.TARGET_DEV )
@@ -153,11 +160,20 @@ def fusion():
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
+<<<<<<< HEAD
     assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
 
     result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
     for file, results in result.values():
         print("File: - {}\nSound {}\tImage{}".format(file, result[0], result[1]))
+=======
+    assert(len(soundSc) == len(imgSc))
+
+    result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
+    for file, results in result.values():
+        pass
+        #print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
+>>>>>>> d0d522b3700b60dbb7420ca899982c571ace7a83
 
 
 if __name__ == '__main__':
