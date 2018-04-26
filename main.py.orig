@@ -4,11 +4,11 @@ import img_reader as img
 import train_img as train
 import snd_lib as lib
 import numpy as np
+<<<<<<< HEAD
 import sys
 
+import snd_reader as sr
 import matplotlib.pyplot as plt
-
-from operator import add
 
 from operator import add
 
@@ -77,6 +77,18 @@ def getSoundScore():
 
 def getImageScore():
     
+=======
+import matplotlib.pyplot as plt
+
+from operator import add
+
+TARGET_DEV = 'data/target_dev/'
+NONTARGET_DEV = 'data/non_target_dev'
+TARGET_TRAIN = 'data/target_train'
+NONTARGET_TRAIN = 'data/non_target_train'
+
+def main():
+>>>>>>> image
     target = img.getFeatures(TARGET_DEV)
     nonetarget = img.getFeatures(NONTARGET_DEV)
     test_target = img.getFeatures(TARGET_TRAIN)
@@ -140,6 +152,7 @@ def getImageScore():
     plt.plot(score_target, 'r.', score_nonetarget, 'b.')
 
     plt.show()
+<<<<<<< HEAD
 
 
 
@@ -153,6 +166,8 @@ def fusion():
     for file, results in result.values():
         pass
         #print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
+=======
+>>>>>>> image
 
 
 if __name__ == '__main__':
