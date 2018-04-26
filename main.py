@@ -2,7 +2,7 @@
 
 import img_reader as img
 import train_img as train
-import snd_lib as lib
+import snd_lib as snd
 import numpy as np
 import sys
 import os
@@ -40,36 +40,36 @@ def getSoundScore():
     # train classifier
     if train:
         # get data
-        target,_ = lib.getFeatures( lib.TARGET_TRAIN )
-        nontarget,_ = lib.getFeatures( lib.NONTARGET_TRAIN )
+        target,_ = snd.getFeatures( snd.TARGET_TRAIN )
+        nontarget,_ = snd.getFeatures( snd.NONTARGET_TRAIN )
         # train
-        lib.train(mergeWithin(target), mergeWithin(nontarget))
+        snd.train(mergeWithin(target), mergeWithin(nontarget))
     # load classifier
     else:
-        lib.load_trained()
+        snd.load_trained()
 
     # read real data
     if REALDATA:
         loc = 'data'+os.sep+'test'
-        data,dataname = lib.getFeatures(loc)
+        data,dataname = snd.getFeatures(loc)
         score = {}
         for i,d in enumerate(data):
-            score[ dataname[i] ] = lib.classify(d)
+            score[ dataname[i] ] = snd.classify(d)
         for k in score.keys():
-            print(k+' : '+score[k])
+            print(str(k)+' : '+str(score[k]))
         return score
     # cross validation
     else:
         # validate target
-        target, target_name = lib.getFeatures( lib.TARGET_DEV )
+        target, target_name = snd.getFeatures( snd.TARGET_DEV )
         target_score = {}
         for i,record in enumerate(target):
-            target_score[ target_name[i] ] = lib.classify( record )
+            target_score[ target_name[i] ] = snd.classify( record )
         # validate nontarget
-        nontarget, nontarget_name = lib.getFeatures( lib.NONTARGET_DEV )
+        nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
         nontarget_score = {}
         for i,record in enumerate(nontarget):
-            nontarget_score[ nontarget_name[i] ] = lib.classify( record )
+            nontarget_score[ nontarget_name[i] ] = snd.classify( record )
         # evaluate score
         ts = 0
         for c in target_score.values():
