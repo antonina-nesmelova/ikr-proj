@@ -25,6 +25,7 @@ def weightedAverage(pixel):
 
 def getFeatures(target_name):
     result_array = np.array([])
+    names = np.array([])
     f_count = 0
     for f in glob(target_name + '/*.png'):
         image = misc.imread(f)
@@ -32,12 +33,13 @@ def getFeatures(target_name):
         for rownum in range(len(image)):
             for colnum in range(len(image[rownum])):
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
+        #edges = filter.sobel(grey)
+        names = np.append(names, f)
         result_array = np.append(result_array, grey)
-        edges = filter.sobel(grey)
         f_count += 1
 
     result_array = result_array.reshape(f_count,6400)
-    return result_array
+    return result_array, names
 
 if __name__ == "__main__":
     raise NotImplementedError('This module is not executable!')
