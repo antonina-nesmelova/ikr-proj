@@ -152,6 +152,9 @@ def getImageScore():
 
 
 def fusion():
+    """
+    Fuses image score and sound score and makes hard decision.
+    """
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
@@ -163,12 +166,14 @@ def fusion():
 
 
 if __name__ == '__main__':
-    
+    # --train
     if len(sys.argv) == 2 and sys.argv[1] == '--train':
         train = True
         fusion()
+    # no argument
     elif len(sys.argv) == 1:
         fusion()
+    # bad arguments
     else:
         print('Usage: ./main [--train]', file=sys.stderr)
         exit()
