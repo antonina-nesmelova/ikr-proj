@@ -18,41 +18,58 @@ NONTARGET_DEV = 'data/non_target_dev'
 TARGET_TRAIN = 'data/target_train'
 NONTARGET_TRAIN = 'data/non_target_train'
 
-TRAIN = True
-
-def mergeWithin(x):
-    res = []
-    for n in x:
-        for i in n:
-            res.append(i)
-    return np.array(res)
+REALDATA = True
+train = False
 
 def getSoundScore():
+    """
+    Trains and saves classifier, or loads coefficients to the classifier.
+    Counts sound score of the data, returns result {'filename': softmax score}.
+    """
 
-    # get data
-    target,_ = lib.getFeatures( lib.TARGET_TRAIN )
-    nontarget,_ = lib.getFeatures( lib.NONTARGET_TRAIN )
-    
-    # this works just wierd
-    #target,nontarget = lib.processFeatures(target,nontarget)
+    def mergeWithin(x):
+        """
+        Merge numpy list of lists into list.        
+        """
+        res = []
+        for n in x:
+            for i in n:
+                res.append(i)
+        return np.array(res)
 
-    #lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
-    lib.train(mergeWithin(target), mergeWithin(nontarget))
+    # train classifier
+    if train:
+        # get data
+        target,_ = snd.getFeatures( snd.TARGET_TRAIN )
+        nontarget,_ = snd.getFeatures( snd.NONTARGET_TRAIN )
+        # train
+        snd.train(mergeWithin(target), mergeWithin(nontarget))
+    # load classifier
+    else:
+        snd.load_trained()
 
-    # train
-    if TRAIN:
+    # read real data
+    if REALDATA:
+        loc = 'data'+os.sep+'test'
+        data,dataname = snd.getFeatures(loc)
+        score = {}
+        for i,d in enumerate(data):
+            score[ dataname[i] ] = snd.classify(d)
+        for k in score.keys():
+            print(str(k)+' : '+str(score[k]))
+        return score
+    # cross validation
+    else:
         # validate target
-        target, target_name = lib.getFeatures( lib.TARGET_DEV )
+        target, target_name = snd.getFeatures( snd.TARGET_DEV )
         target_score = {}
         for i,record in enumerate(target):
-            target_score[ target_name[i] ] = lib.classify( record )
-
+            target_score[ target_name[i] ] = snd.classify( record )
         # validate nontarget
-        nontarget, nontarget_name = lib.getFeatures( lib.NONTARGET_DEV )
+        nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
         nontarget_score = {}
         for i,record in enumerate(nontarget):
-            nontarget_score[ nontarget_name[i] ] = lib.classify( record )
-
+            nontarget_score[ nontarget_name[i] ] = snd.classify( record )
         # evaluate score
         ts = 0
         for c in target_score.values():
@@ -66,20 +83,6 @@ def getSoundScore():
         print("target score:", ts/len(target_score) *100 )
         print("nontarget score:", ns/len(nontarget_score) *100 )
 
-
-    # read real data
-    else:
-        loc = 'data'+os.sep+'test'
-        data,dataname = lib.getFeatures(loc)
-        
-        score = {}
-        for i,d in enumerate(data):
-            score[ dataname[i] ] = lib.classify(d)
-        print(score)
-
-        return score
-
-   
 
 def getImageScore():
     
@@ -150,6 +153,9 @@ def getImageScore():
 
 
 def fusion():
+    """
+    Fuses image score and sound score and makes hard decision.
+    """
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
@@ -161,13 +167,14 @@ def fusion():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('Usage: ./main [--image | --sound]', file=sys.stderr)
-        exit() 
-    if sys.argv[1] == '--image':
-        getImageScore()
-    elif sys.argv[1] == '--sound':
-        getSoundScore()
+    # --train
+    if len(sys.argv) == 2 and sys.argv[1] == '--train':
+        train = True
+        fusion()
+    # no argument
+    elif len(sys.argv) == 1:
+        fusion()
+    # bad arguments
     else:
-        print('Usage: ./main [--image | --sound]', file=sys.stderr)
+        print('Usage: ./main [--train]', file=sys.stderr)
         exit()
