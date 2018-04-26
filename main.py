@@ -83,10 +83,6 @@ def getSoundScore():
         print("nontarget score:", ns/len(nontarget_score) *100 )
 
 
-    
-
-   
-
 def getImageScore():
     
     target = img.getFeatures(TARGET_DEV)
@@ -159,12 +155,11 @@ def fusion():
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
-    assert(len(soundSc) == len(imgSc))
+    assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
 
     result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
     for file, results in result.values():
-        pass
-        #print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
+        print("File: - {}\nSound {}\tImage{}".format(file, result[0], result[1]))
 
 
 if __name__ == '__main__':

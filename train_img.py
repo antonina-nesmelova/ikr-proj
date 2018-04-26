@@ -15,6 +15,7 @@ def getGauss(target, nonetarget):
     A = result_array
     # calculate the mean of each column
     M = mean(A.T, axis=1)
+    print(M)
 
     D = nonetarget
     M3 = mean(D.T, axis=1)
