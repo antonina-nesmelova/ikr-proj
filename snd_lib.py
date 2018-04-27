@@ -37,7 +37,9 @@ def getFeatures(directory):
         for k in mfcc[n]:
             result2.append( np.array(list(k)) )
         result.append( np.array(result2) )
-        res_names.append(n) 
+        name = '.'.join(n.split('.')[:-1])
+        name = name.split(os.sep)[-1]
+        res_names.append(name) 
     return np.array(result), res_names
 
 

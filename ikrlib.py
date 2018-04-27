@@ -296,7 +296,8 @@ def wav16khz2mfcc(dir_name):
         print('Processing file: ', f)
         rate, s = wavfile.read(f)
         assert(rate == 16000)
-        s = optimize(s)
+        # TODO: return after testing
+        # s = optimize(s)
         features[f] = mfcc(s, 400, 240, 512, 16000, 23, 13)
     return features
 
