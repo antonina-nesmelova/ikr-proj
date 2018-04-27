@@ -73,46 +73,36 @@ def getSoundScore():
         score = {}
         for i,d in enumerate(data):
             score[ dataname[i] ] = snd.classify(d)[0]
-        for k in score.keys():
-            print(str(k)+' : '+str(score[k]))
+        #for k in score.keys():
+        #    print(str(k)+' : '+str(score[k]))
         return score
     # cross validation
     else:
-        # validate target
+        # load
         target, target_name = snd.getFeatures( snd.TARGET_DEV )
-        target_score = {}
-        for i,record in enumerate(target):
-            target_score[ target_name[i] ] = snd.classify( record )
-        # validate nontarget
         nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
-        nontarget_score = {}
-        max_score = (0,0)
-        treshold = 0
-        for n in range(1000,5000,100):
-            snd.move = n
-            for i,record in enumerate(target):
-                target_score[ target_name[i] ] = snd.classify( record )
-            
-            for i,record in enumerate(nontarget):
-                nontarget_score[ nontarget_name[i] ] = snd.classify( record )
-            # evaluate score
-            ts = 0
-            for c in target_score.values():
-                if c > 0:
-                    ts += 1
-            ns = 0
-            for c in nontarget_score.values():
-                if c <= 0:
-                    ns += 1
-            tscore = ts/len(target_score) *100
-            nscore = ns/len(nontarget_score) *100
-            print("target score:", tscore )
-            print("nontarget score:", nscore )
-            
-            if tscore > max_score[0] and nscore > max_score[1]:
-                max_score = (tscore,nscore)
-                treshold = n
-                print('found', treshold,':',tscore,nscore)
+        # evaluate
+        score = {}
+        for i,record in enumerate(target):
+            score[ target_name[i] ] = snd.classify( record )    
+        for i,record in enumerate(nontarget):
+            score[ nontarget_name[i] ] = snd.classify( record )
+        
+        # evaluate score
+        #ts = 0
+        #for c in score.values():
+        #    if c > 0:
+        #        ts += 1
+        #ns = 0
+        #for c in score.values():
+        #    if c <= 0:
+        #        ns += 1
+        #tscore = ts/len(target_score) *100
+        #nscore = ns/len(nontarget_score) *100
+        #print("target score:", tscore )
+        #print("nontarget score:", nscore )
+        return score
+
             
 
 def getImageScore():
@@ -200,7 +190,7 @@ def getImageScore():
         #++++++++++++++++++++++++++++++++++++++++++++
 
 
-        print(ww)
+        #print(ww)
         wf1=ww[0]
         mf1=mm[0]
         cf1=cc[0]
@@ -250,7 +240,7 @@ def getImageScore():
         plt.show()
 
 
-        print('Get gauss')
+        #print('Get gauss')
         
         score1_test_target = trainLib.getScore(test_target, wf1, mf1, cf1, v1)
         score1_test_nonetarget = trainLib.getScore(test_nonetarget, wf1, mf1, cf1, v1)
@@ -299,7 +289,7 @@ def getImageScore():
         dic = {**dic ,**dict(zip(nonetarget_names, score_nonetarget))}
         dic = {**dic ,**dict(zip(test_target_names, score_test_target))}
         dic = {**dic ,**dict(zip(test_nonetarget_names, score_test_nonetarget))}
-        print(len(dic))
+        #print(len(dic))
         return dic
 
 def fusion():
@@ -309,6 +299,14 @@ def fusion():
 
     imgSc = getImageScore()
     soundSc = getSoundScore()
+
+    assert(len(imgSc) == len(soundSc))
+
+    mu1 = np.mean( np.array(imgSc.values()) )
+    mu2 = np.mean( np.array(soundSc.values()) )
+
+    for i in imgSc.keys():
+        imgSc[i] -= mu1
 
     print(len(soundSc), len(imgSc))
     max_len_ar = soundSc if len(soundSc) > len(imgSc) else imgSc
@@ -322,6 +320,7 @@ def fusion():
 
     border = 10 # TODO: change to some heuristics
 
+    mean1 = np.mean()
     mean1 = sum(map(abs, max_len_ar.values())) / len(max_len_ar)
     mean2 = sum(map(abs, min_len_ar.values())) / len(min_len_ar)
     norm = mean1 / mean2
