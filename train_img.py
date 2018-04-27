@@ -228,7 +228,7 @@ def multByVectors(data, vectors):
     return data
 
 def getScore(test, ws, mus, covs, vector):
-    print('In getScore')
+    # print('In getScore')
     test = transformData(test, vector, False)
 
     t = 0.5  # Aprior probability for face recognition  
@@ -237,7 +237,7 @@ def getScore(test, ws, mus, covs, vector):
     for tst in test:
         ll1 = logpdf_gmm(tst, ws, mus, covs)
         score.append(sum(ll1) + np.log(t))
-    print(score)
+    # print(score)
     return score
 
 
