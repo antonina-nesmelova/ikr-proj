@@ -200,7 +200,7 @@ def getImageScore():
         #++++++++++++++++++++++++++++++++++++++++++++
 
 
-        print(ww)
+        # print(ww)
         wf1=ww[0]
         mf1=mm[0]
         cf1=cc[0]
