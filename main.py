@@ -326,7 +326,7 @@ def fusion():
     mean2 = sum(map(abs, imgSc.values()))   / len(imgSc)
     norm = mean1 / mean2
 
-    result = {k: [v1**5, imgSc[k]**5] for k, v1 in soundSc.items()}
+    result = {k: [v1**3, (imgSc[k]/norm)**3] for k, v1 in soundSc.items()}
     with open("results.txt", "w") as fus_file:
         for file, results in result.items():
             # Calculation
