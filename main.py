@@ -18,7 +18,7 @@ TARGET_TRAIN = 'data/target_train'
 NONTARGET_TRAIN = 'data/non_target_train'
 
 REALDATA = True
-train = True
+train = False
 
 def main():
     global train
@@ -30,7 +30,6 @@ def main():
         getSoundScore()
     # no argument
     elif len(sys.argv) == 1:
-        train = False
         fusion()
     # bad arguments
     else:
