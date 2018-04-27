@@ -137,9 +137,6 @@ def getImageScore():
         loc = 'data'+os.sep+'test'
         test, test_names = img.getFeatures(loc)
 
-        ttar = trainLib.transformData(test,v1, False)
-        ttar = trainLib.transformData(test,v2, False)
-        ttar = trainLib.transformData(test,v3, False)
         score1_test = trainLib.getScore(test, ww[0], mm[0], cc[0], v1)
         score2_test = trainLib.getScore(test, ww[1], mm[1], cc[1], v2)
         score3_test = trainLib.getScore(test, ww[2], mm[2], cc[2], v3)
@@ -302,7 +299,6 @@ def fusion():
 
     imgSc = getImageScore()
     soundSc = getSoundScore()
-    # soundSc = {'.'.join(k.split('.')[:-1]): v for k, v in soundRes.items()}
 
     print(len(soundSc), len(imgSc))
     max_len_ar = soundSc if len(soundSc) > len(imgSc) else imgSc
@@ -316,16 +312,20 @@ def fusion():
 
     border = 10 # TODO: change to some heuristics
 
-    result = {k: [v1, min_len_ar[k]] for k, v1 in max_len_ar.items()}
+    mean1 = sum(map(abs, max_len_ar.values())) / len(max_len_ar)
+    mean2 = sum(map(abs, min_len_ar.values())) / len(min_len_ar)
+    norm = mean1 / mean2
+
+    result = {k: [v1*norm, max_len_ar[k]] for k, v1 in min_len_ar.items()}
     with open("results.txt", "w") as fus_file:
         for file, results in result.items():
             # Calculation
             # TODO: set sound score as primary score via magic multiplier
-            res_sum = (results[0] + results[1] * 0.8) / 2
+            res_sum = results[0] + results[1]
 
             print("File: - {}\nSound {}\tImage {}\tScore {}".format(file, results[0], results[1], res_sum))
             fus_file.write("{name} {res_sum} {fus_res}\n".format(
-                name=file, res_sum=res_sum, fus_res=int(res_sum < border)))
+                name=file, res_sum=res_sum, fus_res=int(res_sum > 0)))
 
 
 if __name__ == '__main__':
