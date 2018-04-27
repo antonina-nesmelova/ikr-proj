@@ -326,14 +326,14 @@ def fusion():
     mean2 = sum(map(abs, min_len_ar.values())) / len(min_len_ar)
     norm = mean1 / mean2
 
-    result = {k: [v1*norm, max_len_ar[k]] for k, v1 in min_len_ar.items()}
+    result = {k: [v1, max_len_ar[k]] for k, v1 in min_len_ar.items()}
     with open("results.txt", "w") as fus_file:
         for file, results in result.items():
             # Calculation
             # TODO: set sound score as primary score via magic multiplier
             res_sum = results[0] + results[1]
 
-            print("File: - {}\nSound {}\tImage {}\tScore {}".format(file, results[0], results[1], res_sum))
+            print("File: - {}\nSound {}\tImage {}\tScore {}".format(file, soundSc[file], imgSc[file], res_sum))
             fus_file.write("{name} {res_sum} {fus_res}\n".format(
                 name=file, res_sum=res_sum, fus_res=int(res_sum > 0)))
 
