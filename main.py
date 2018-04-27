@@ -152,7 +152,7 @@ def getImageScore():
         score3_test = trainLib.getScore(test, ww[2], mm[2], cc[2], v3)
         score_test = list(map(add, score1_test, score2_test))
         score_test = list(map(add, score_test, score3_test))
-        score_test       = [(v + 51) * 100 for v in score_test]
+        score_test       = [(v + 65) * 100 for v in score_test]
         # plt.plot(score_test, 'r.', score_test_nonetarget, 'b.')
         return dict(zip(test_names, score_test))
     else:
@@ -280,10 +280,10 @@ def getImageScore():
         score_nonetarget = list(map(add, score1_nonetarget, score2_nonetarget))
         score_nonetarget = list(map(add, score_nonetarget, score3_nonetarget))
 
-        score_target            = [(v + 100) * 100 for v in score_target]
-        score_nonetarget        = [(v + 100) * 100 for v in score_nonetarget]
-        score_test_target       = [(v + 100) * 100 for v in score_test_target]
-        score_test_nonetarget   = [(v + 100) * 100 for v in score_test_nonetarget]
+        score_target            = [(v + 65) * 100 for v in score_target]
+        score_nonetarget        = [(v + 65) * 100 for v in score_nonetarget]
+        score_test_target       = [(v + 65) * 100 for v in score_test_target]
+        score_test_nonetarget   = [(v + 65) * 100 for v in score_test_nonetarget]
 
         # TODO: create better represintation of data
         # +++++++++++++++++++++++++++++++++++++++++++++++++
