@@ -13,7 +13,9 @@ x1 = np.r_[rand_gauss(400, np.array([50, 40]), np.array([[100, 70], [70, 100]]))
           
 x2 = np.r_[rand_gauss(400, np.array([45, 60]), np.array([[40, 0], [0, 40]])),
            rand_gauss(200, np.array([30, 40]), np.array([[20, 0], [0, 40]]))]
-          
+
+print(x1)
+
 mu1, cov1 = train_gauss(x1)
 mu2, cov2 = train_gauss(x2)
 p1 = p2 = 0.5

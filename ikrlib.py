@@ -14,7 +14,7 @@ from scipy.ndimage import imread
 from scipy.spatial.distance import cdist
 from scipy.misc import logsumexp
 import scipy.fftpack
-
+from scipy.signal import lfilter as lflt
 
 def k_nearest_neighbours(test_data, class1, class2, k):
     euclidean = cdist(np.r_[class1, class2], test_data)
@@ -296,6 +296,7 @@ def wav16khz2mfcc(dir_name):
         print('Processing file: ', f)
         rate, s = wavfile.read(f)
         assert(rate == 16000)
+        s = optimize(s)
         features[f] = mfcc(s, 400, 240, 512, 16000, 23, 13)
     return features
 
@@ -396,3 +397,28 @@ def demo_gmm():
     for j in range(m2):
         gellipse(mus2[:, j], covs2[j, :, :], 100, 'b', lw=round(ws2[j] * 10), ax=ax2)
     plt.show()
+
+
+def optimize(signal):
+
+    # Two second timer
+    if len(signal) < 20000:
+        return array([])
+    else:
+        signal = signal[20000:]
+
+    # Averaging filter
+    magic_devider = 50
+    s_div = len(signal) // magic_devider 
+    flt =   ones(s_div) /  s_div
+
+    # Averaging
+    proc_tmp = lflt(flt, 1, abs(signal))
+
+    noise_border = max(proc_tmp) / 8 # <- magic constant
+    low_sound = max(proc_tmp) / 6 # <- magic constant
+
+    normed_result = array([rs for fs, rs in zip(proc_tmp, signal) if fs > noise_border and abs(rs) > low_sound ]).astype('float64')
+    mean = np.mean(vstack(normed_result).T, axis=1)
+    normed_result -= mean
+    return normed_result.astype('int16')

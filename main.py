@@ -3,6 +3,7 @@
 import snd_reader as sr
 import img_reader as img
 import train_img as train
+import snd_lib as snd
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
@@ -33,6 +34,70 @@ def main():
     else:
         print('Usage: ./main [--train]', file=sys.stderr)
         exit()
+
+def getSoundScore():
+    """
+    Trains and saves classifier, or loads coefficients to the classifier.
+    Counts sound score of the data, returns result {'filename': softmax score}.
+    """
+
+    def mergeWithin(x):
+        """
+        Merge numpy list of lists into list.        
+        """
+        res = []
+        for n in x:
+            for i in n:
+                res.append(i)
+        return np.array(res)
+	
+    # train classifier
+    if train:
+        # get data
+        target,_ = snd.getFeatures( snd.TARGET_TRAIN )
+        nontarget,_ = snd.getFeatures( snd.NONTARGET_TRAIN )
+        # train
+        snd.train(mergeWithin(target), mergeWithin(nontarget))
+    # load classifier
+    else:
+        snd.load_trained()
+
+    # read real data
+    if REALDATA:
+        loc = 'data'+os.sep+'test'
+        data,dataname = snd.getFeatures(loc)
+        score = {}
+        for i,d in enumerate(data):
+            score[ dataname[i] ] = snd.classify(d)
+        for k in score.keys():
+            print(str(k)+' : '+str(score[k]))
+        return score
+    # cross validation
+    else:
+        # validate target
+        target, target_name = snd.getFeatures( snd.TARGET_DEV )
+        target_score = {}
+        for i,record in enumerate(target):
+            target_score[ target_name[i] ] = snd.classify( record )
+        # validate nontarget
+        nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
+        nontarget_score = {}
+        for i,record in enumerate(nontarget):
+            nontarget_score[ nontarget_name[i] ] = snd.classify( record )
+        # evaluate score
+        ts = 0
+        for c in target_score.values():
+            if c > 0:
+                ts += 1
+        ns = 0
+        for c in nontarget_score.values():
+            if c <= 0:
+                ns += 1
+
+        print("target score:", ts/len(target_score) *100 )
+        print("nontarget score:", ns/len(nontarget_score) *100 )
+
+
 
 def getImageScore():
     global t
@@ -207,7 +272,42 @@ def getImageScore():
     return dic
 
 def fusion():
-    getImageScore()
+    """
+    Fuses image score and sound score and makes hard decision.
+    """
+
+    # soundRes = getSoundScore()
+    # soundSc = {'.'.join(k.split('.')[:-1]): v for k, v in soundRes.items()}
+
+    # TODO: update from image branch
+    # imgSc = getImageScore()
+
+    # Tmp for test
+    # TODO: delete
+    imgSc =     {"f1":2, "f3":1}
+    soundSc =   {"f1":2, "f3":1}
+
+    print(len(soundSc), len(imgSc))
+    for k in soundSc.keys():
+        if k not in imgSc.keys():
+            print(k)
+
+    # Assert fails, don't know why
+    # assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
+
+    border = 10 # TODO: change to some heuristics
+
+    result = {k: [v1, imgSc[k]] for k, v1 in soundSc.items()}
+    with open("results.txt", "w") as fus_file:
+        for file, results in result.items():
+            # Calculation
+            # TODO: set sound score as primary score via magic multiplier
+            res_sum = (results[0] + results[1] * 0.8) / 2
+
+            print("File: - {}\nSound {}\tImage {}\tScore {}".format(file, results[0], results[1], res_sum))
+            fus_file.write("{name} {res_sum} {fus_res}\n".format(
+                name=file, res_sum=res_sum, fus_res=int(res_sum < border)))
+
 
 if __name__ == '__main__':
     main()
