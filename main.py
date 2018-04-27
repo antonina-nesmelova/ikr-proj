@@ -72,7 +72,7 @@ def getSoundScore():
         data,dataname = snd.getFeatures(loc)
         score = {}
         for i,d in enumerate(data):
-            score[ dataname[i] ] = snd.classify(d)
+            score[ dataname[i] ] = snd.classify(d)[0]
         for k in score.keys():
             print(str(k)+' : '+str(score[k]))
         return score
