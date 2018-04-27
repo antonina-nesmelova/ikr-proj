@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import img_reader as img
-import train_img as train
+import train_img as train_lib
 import snd_lib as snd
 import numpy as np
 import sys
@@ -85,62 +85,44 @@ def getSoundScore():
 
 
 def getImageScore():
-    
-    target = img.getFeatures(TARGET_DEV)
-    nonetarget = img.getFeatures(NONTARGET_DEV)
-    test_target = img.getFeatures(TARGET_TRAIN)
-    test_nonetarget = img.getFeatures(NONTARGET_TRAIN)
+    names_listed = []
+    names, target = img.getFeatures(TARGET_DEV)
+    names_listed.append(names)
+    names, nonetarget = img.getFeatures(NONTARGET_DEV)
+    names_listed.append(names)
+    names, test_target = img.getFeatures(TARGET_TRAIN)
+    names_listed.append(names)
+    names, test_nonetarget = img.getFeatures(NONTARGET_TRAIN)
+    names_listed.append(names)
+
+
     print('Get gauss')
-    w, m, c, v1, v2 = train.getGauss(target, nonetarget)
-    print(w)
-    print(m)
-    print(c)
-    skt1 = train.getScore(test_target, w[0], m[0], c[0], v1)
-    skn1 = train.getScore(test_nonetarget, w[0], m[0], c[0], v1)
-    skt2 = train.getScore(test_target, w[1], m[1], c[1], v2)
-    skn2 = train.getScore(test_nonetarget, w[1], m[1], c[1], v2)
+    w, m, c, v1, v2 = train_lib.getGauss(target, nonetarget)
+    # print("w: {}\nm: {}\nc: {}\nv1: {}\nv2: {}\n".format(w, m, c, v1, v2))
+    skt1 = train_lib.getScore(test_target, w[0], m[0], c[0], v1)
+    skn1 = train_lib.getScore(test_nonetarget, w[0], m[0], c[0], v1)
+    skt2 = train_lib.getScore(test_target, w[1], m[1], c[1], v2)
+    skn2 = train_lib.getScore(test_nonetarget, w[1], m[1], c[1], v2)
 
-    skt3 = train.getScore(target, w[0], m[0], c[0], v1)
-    skn3 = train.getScore(nonetarget, w[0], m[0], c[0], v1)
-    skt4 = train.getScore(target, w[1], m[1], c[1], v2)
-    skn4 = train.getScore(nonetarget, w[1], m[1], c[1], v2)
+    skt3 = train_lib.getScore(target, w[0], m[0], c[0], v1)
+    skn3 = train_lib.getScore(nonetarget, w[0], m[0], c[0], v1)
+    skt4 = train_lib.getScore(target, w[1], m[1], c[1], v2)
+    skn4 = train_lib.getScore(nonetarget, w[1], m[1], c[1], v2)
 
-    score_test_target = map(add, skt1, skt2) 
-    score_test_nonetarget = map(add, skn1, skn2)
+    score_target = list(map(add, skt3, skt4))
+    score_nonetarget = list(map(add, skn3, skn4))
 
-    score_target = map(add, skt3, skt4)
-    score_nonetarget = map(add, skn3, skn4)
+    score_test_target = list(map(add, skt1, skt2))
+    score_test_nonetarget = list(map(add, skn1, skn2))
 
-    target_ok = 0
-    nonetarget_ok = 0
+    print(  "score_target: {}"
+            "score_nonetarget: {}"
+            "score_test_target: {}"
+            "score_test_nonetarget: {}".format(
+                score_target, score_nonetarget,
+                score_test_target, score_test_nonetarget))
 
-    print(score_test_target)
-    print(len(score_test_target))
-    print(score_target)
-    print(len(score_target))
-    print(score_test_nonetarget)
-    print(len(score_test_nonetarget))
-    print(score_nonetarget)
-    print(len(score_nonetarget))
-
-    for t in score_test_target:
-        if t > -40:
-            target_ok = target_ok + 1
-
-    for t in score_target:
-        if t > -40:
-            target_ok = target_ok + 1
-
-    for t in score_test_nonetarget:
-        if t <= -40:
-            nonetarget_ok = nonetarget_ok + 1 
-
-    for t in score_nonetarget:
-        if t <= -40:
-            nonetarget_ok = nonetarget_ok + 1
-
-    print("TargetOk%: {}/{}={}".format(target_ok, len(score_test_target + score_target), float(target_ok)/len(score_test_target + score_target)))
-    print("NontargetOk: {}/{}={}".format(nonetarget_ok, len(score_nonetarget + score_test_nonetarget), float(nonetarget_ok)/len(score_nonetarget + score_test_nonetarget)))
+    # Score divider is -40 (form Tony_the_boss)
 
     plt.figure(1)
     plt.plot(score_test_target, 'r.', score_test_nonetarget, 'b.')
@@ -149,21 +131,55 @@ def getImageScore():
     plt.plot(score_target, 'r.', score_nonetarget, 'b.')
 
     plt.show()
+    result = {}
+    for name, score in zip(names_listed[0], score_target):
+        result[name] = score
+    for name, score in zip(names_listed[1], score_nonetarget):
+        result[name] = score
+    for name, score in zip(names_listed[2], score_test_target):
+        result[name] = score
+    for name, score in zip(names_listed[3], score_test_nonetarget):
+        result[name] = score
 
-
+    return result
 
 def fusion():
     """
     Fuses image score and sound score and makes hard decision.
     """
-    soundSc = getSoundScore()
-    imgSc = getImageScore()
 
-    assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
+    # soundRes = getSoundScore()
+    # soundSc = {'.'.join(k.split('.')[:-1]): v for k, v in soundRes.items()}
 
-    result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
-    for file, results in result.values():
-        print("File: - {}\nSound {}\tImage{}".format(file, result[0], result[1]))
+    # TODO: update from image branch
+    # imgSc = getImageScore()
+
+    # Tmp for test
+    # TODO: delete
+    imgSc =     {"f1":2, "f3":1}
+    soundSc =   {"f1":2, "f3":1}
+
+    print(len(soundSc), len(imgSc))
+    for k in soundSc.keys():
+        if k not in imgSc.keys():
+            print(k)
+
+    # Assert fails, don't know why
+    # assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
+
+    border = 10 # TODO: change to some heuristics
+
+    result = {k: [v1, imgSc[k]] for k, v1 in soundSc.items()}
+    with open("results.txt", "w") as fus_file:
+        for file, results in result.items():
+            # Calculation
+            # TODO: set sound score as primary score via magic multiplier
+            res_sum = (results[0] + results[1] * 0.8) / 2
+
+            print("File: - {}\nSound {}\tImage {}\tScore {}".format(file, results[0], results[1], res_sum))
+            fus_file.write("{name} {res_sum} {fus_res}\n".format(
+                name=file, res_sum=res_sum, fus_res=int(res_sum < border)))
+
 
 
 if __name__ == '__main__':

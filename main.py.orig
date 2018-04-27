@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
-import snd_reader as sr
 import img_reader as img
 import train_img as train
-import snd_lib as lib
+import snd_lib as snd
 import numpy as np
 import sys
 import os
 
-import snd_reader as sr
 import matplotlib.pyplot as plt
 
 from operator import add
@@ -20,17 +18,37 @@ NONTARGET_DEV = 'data/non_target_dev'
 TARGET_TRAIN = 'data/target_train'
 NONTARGET_TRAIN = 'data/non_target_train'
 
-TRAIN = True
-
-def mergeWithin(x):
-    res = []
-    for n in x:
-        for i in n:
-            res.append(i)
-    return np.array(res)
+REALDATA = True
+train = False
 
 def getSoundScore():
+    """
+    Trains and saves classifier, or loads coefficients to the classifier.
+    Counts sound score of the data, returns result {'filename': softmax score}.
+    """
 
+    def mergeWithin(x):
+        """
+        Merge numpy list of lists into list.        
+        """
+        res = []
+        for n in x:
+            for i in n:
+                res.append(i)
+        return np.array(res)
+
+    # train classifier
+    if train:
+        # get data
+        target,_ = snd.getFeatures( snd.TARGET_TRAIN )
+        nontarget,_ = snd.getFeatures( snd.NONTARGET_TRAIN )
+        # train
+        snd.train(mergeWithin(target), mergeWithin(nontarget))
+    # load classifier
+    else:
+        snd.load_trained()
+
+<<<<<<< HEAD
     # get data
     target,_ = lib.getFeatures( lib.TARGET_TRAIN )
     nontarget,_ = lib.getFeatures( lib.NONTARGET_TRAIN )
@@ -38,28 +56,35 @@ def getSoundScore():
     # this works just wierd
     #target,nontarget = lib.processFeatures(target,nontarget)
 
-<<<<<<< HEAD
-    lib.train( target, nontarget )
-    
-=======
     #lib.train( np.array(list(target.values())), np.array(list(nontarget.values())) )
     lib.train(mergeWithin(target), mergeWithin(nontarget))
 
     # train
->>>>>>> d0d522b3700b60dbb7420ca899982c571ace7a83
     if TRAIN:
+=======
+    # read real data
+    if REALDATA:
+        loc = 'data'+os.sep+'test'
+        data,dataname = snd.getFeatures(loc)
+        score = {}
+        for i,d in enumerate(data):
+            score[ dataname[i] ] = snd.classify(d)
+        for k in score.keys():
+            print(str(k)+' : '+str(score[k]))
+        return score
+    # cross validation
+    else:
+>>>>>>> 4662af8d191d0c1a9149e394d8634b017bdf2f66
         # validate target
-        target, target_name = lib.getFeatures( lib.TARGET_DEV )
+        target, target_name = snd.getFeatures( snd.TARGET_DEV )
         target_score = {}
         for i,record in enumerate(target):
-            target_score[ target_name[i] ] = lib.classify( record )
-
+            target_score[ target_name[i] ] = snd.classify( record )
         # validate nontarget
-        nontarget, nontarget_name = lib.getFeatures( lib.NONTARGET_DEV )
+        nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
         nontarget_score = {}
         for i,record in enumerate(nontarget):
-            nontarget_score[ nontarget_name[i] ] = lib.classify( record )
-
+            nontarget_score[ nontarget_name[i] ] = snd.classify( record )
         # evaluate score
         ts = 0
         for c in target_score.values():
@@ -69,24 +94,9 @@ def getSoundScore():
         for c in nontarget_score.values():
             if c <= 0:
                 ns += 1
-
         print("target score:", ts/len(target_score) *100 )
         print("nontarget score:", ns/len(nontarget_score) *100 )
 
-
-    # read real data
-    else:
-        loc = 'data'+os.sep+'test'
-        data,dataname = lib.getFeatures(loc)
-        
-        score = {}
-        for i,d in enumerate(data):
-            score[ dataname[i] ] = lib.classify(d)
-        print(score)
-
-        return score
-
-   
 
 def getImageScore():
     
@@ -157,33 +167,32 @@ def getImageScore():
 
 
 def fusion():
+    """
+    Fuses image score and sound score and makes hard decision.
+    """
     soundSc = getSoundScore()
     imgSc = getImageScore()
 
-<<<<<<< HEAD
     assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
 
     result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
     for file, results in result.values():
         print("File: - {}\nSound {}\tImage{}".format(file, result[0], result[1]))
-=======
-    assert(len(soundSc) == len(imgSc))
-
-    result = {k: [v1, imgSc[k]] for k, v1 in soundSc.values()}
-    for file, results in result.values():
-        pass
-        #print(f"File: - {file}\nSound {result[0]}\tImage{result[1]}")
->>>>>>> d0d522b3700b60dbb7420ca899982c571ace7a83
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print('Usage: ./main [--image | --sound]', file=sys.stderr)
-        exit() 
-    if sys.argv[1] == '--image':
-        getImageScore()
-    elif sys.argv[1] == '--sound':
-        getSoundScore()
+    # --train
+    if len(sys.argv) == 2 and sys.argv[1] == '--train':
+        train = True
+        fusion()
+    # no argument
+    elif len(sys.argv) == 1:
+        fusion()
+    # bad arguments
     else:
+<<<<<<< HEAD
         print('Usage: ./main [--image | --sound]', file=sys.stderr)
+=======
+        print('Usage: ./main [--train]', file=sys.stderr)
+>>>>>>> 4662af8d191d0c1a9149e394d8634b017bdf2f66
         exit()

@@ -77,7 +77,7 @@ def getGauss(target, nonetarget):
     ws2 = np.ones(m2) / m2
 
 
-    for i in range(30):
+    for i in range(20):
         ws1, mus1, covs1, ttl1 = train_gmm(tar, ws1, mus1, covs1)
         ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
         print('Total log-likelihood: %s for class X1;' % (ttl1))

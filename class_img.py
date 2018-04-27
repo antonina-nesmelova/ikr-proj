@@ -15,7 +15,7 @@ from numpy import mean
 from numpy import cov
 from numpy.linalg import eig
 
-from skimage import filter
+from skimage import filters
 #target_dev = png2fea('target_dev/').values()
 #target_train = png2fea('target_train/').values()
 #non_target_dev = png2fea('non_target_dev/').values()
@@ -37,7 +37,7 @@ for f in glob(dir_name + '/*.png'):
         for colnum in range(len(image[rownum])):
             grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
     result_array = np.append(result_array, grey)
-    edges = filter.sobel(grey)
+    edges = filters.sobel(grey)
     #plt.imshow(edges, cmap = cm.Greys_r) #load
     #plt.show()
 print(result_array.shape)
