@@ -27,6 +27,7 @@ def getVectors(target, nonetarget):
     A = result_array
     # calculate the mean of each column
     M = mean(A.T, axis=1)
+    print(M)
 
 
     # center columns by subtracting column means
@@ -101,7 +102,11 @@ def getGauss(target, nonetarget, vectors, vectors1, vectors2, test_target, test_
     #ws2 = np.ones(m2) / m2
 
 
+<<<<<<< HEAD
     for i in range(RANGE):
+=======
+    for i in range(20):
+>>>>>>> master
         ws1, mus1, covs1, ttl1 = train_gmm(tar, ws1, mus1, covs1)
     #    ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
         print('Total log-likelihood: %s for class X1;' % (ttl1))

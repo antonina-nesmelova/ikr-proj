@@ -11,8 +11,6 @@ from glob import glob
 from numpy.random import randint
 from ikrlib import rand_gauss, plot2dfun, gellipse, logpdf_gauss, train_gauss, train_gmm, logpdf_gmm, logistic_sigmoid
 
-import os
-
 from numpy import array
 from numpy import mean
 from numpy import cov
@@ -26,7 +24,7 @@ def weightedAverage(pixel):
 
 def getFeatures(target_name):
     result_array = np.array([])
-    names = []
+    names = np.array([])
     f_count = 0
     for f in glob(target_name + '/*.png'):
         image = misc.imread(f)
@@ -35,9 +33,7 @@ def getFeatures(target_name):
             for colnum in range(len(image[rownum])):
                 grey[rownum][colnum] = weightedAverage(image[rownum][colnum])
         #edges = filter.sobel(grey)
-        name = '.'.join(f.split('.')[:-1])
-        name = name.split(os.sep)[-1]
-        names.append(name)
+        names = np.append(names, f)
         result_array = np.append(result_array, grey)
         f_count += 1
 
