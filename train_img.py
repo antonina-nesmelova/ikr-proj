@@ -229,27 +229,14 @@ def multByVectors(data, vectors):
 
 def getScore(test, ws, mus, covs, vector):
     print('In getScore')
-    #for i in range(3):
-    #    print(i)
     test = transformData(test, vector, False)
 
-    t = 0.5
-    nt = 1 - t   
+    t = 0.5  # Aprior probability for face recognition  
 
     score=[]
     for tst in test:
-        print('In for')
         ll1 = logpdf_gmm(tst, ws, mus, covs)
-        #print(ll1)
-        #ll2 = logpdf_gmm(tst, ws[1], mus[1], covs[1])
-        #print(ll2)
-        #ll3 = logpdf_gmm(tst, ws[2], mus[2], covs[2])
-        #print(ll3)
-        print('Score')
-        #print(ll1)
-        #print(ll2)
-        #print(ll3)
-        score.append(sum(ll1) + np.log(nt))
+        score.append(sum(ll1) + np.log(t))
     print(score)
     return score
 
