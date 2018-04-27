@@ -115,12 +115,13 @@ def load_trained():
     target_gauss = (ws1, mus1, covs1)
     nontarget_gauss = (ws2, mus2, covs2)
 
-
+move = 2000
 
 def classify(record):
     """
     Classifies the given record. Returns softmax score.
     """
+    global move
     assert(isinstance(record,np.ndarray))
     # count score
     score = 0
@@ -131,4 +132,4 @@ def classify(record):
         for ws,mu,cov in zip(*nontarget_gauss):
             mscore -= ikr.logpdf_gauss(sample,mu,cov)*ws
         score += mscore
-    return score + 2000
+    return score + move

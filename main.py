@@ -69,7 +69,7 @@ def getSoundScore():
 
     # read real data
     if REALDATA:
-        loc = 'data'+os.sep+'test'
+        loc = 'data'+os.sep+'eval'
         data,dataname = snd.getFeatures(loc)
         score = {}
         for i,d in enumerate(data):
@@ -87,22 +87,34 @@ def getSoundScore():
         # validate nontarget
         nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
         nontarget_score = {}
-        for i,record in enumerate(nontarget):
-            nontarget_score[ nontarget_name[i] ] = snd.classify( record )
-        # evaluate score
-        ts = 0
-        for c in target_score.values():
-            if c > 0:
-                ts += 1
-        ns = 0
-        for c in nontarget_score.values():
-            if c <= 0:
-                ns += 1
-
-        print("target score:", ts/len(target_score) *100 )
-        print("nontarget score:", ns/len(nontarget_score) *100 )
-
-
+        max_score = (0,0)
+        treshold = 0
+        for n in range(1000,5000,100):
+            snd.move = n
+            for i,record in enumerate(target):
+                target_score[ target_name[i] ] = snd.classify( record )
+            
+            for i,record in enumerate(nontarget):
+                nontarget_score[ nontarget_name[i] ] = snd.classify( record )
+            # evaluate score
+            ts = 0
+            for c in target_score.values():
+                if c > 0:
+                    ts += 1
+            ns = 0
+            for c in nontarget_score.values():
+                if c <= 0:
+                    ns += 1
+            tscore = ts/len(target_score) *100
+            nscore = ns/len(nontarget_score) *100
+            print("target score:", tscore )
+            print("nontarget score:", nscore )
+            
+            if tscore > max_score[0] and nscore > max_score[1]:
+                max_score = (tscore,nscore)
+                treshold = n
+                print('found', treshold,':',tscore,nscore)
+            
 
 def getImageScore():
     global t, REALDATA
@@ -115,7 +127,6 @@ def getImageScore():
     v1 = np.load(tdir+'v1.npy')
     v2 = np.load(tdir+'v2.npy')
     v3 = np.load(tdir+'v3.npy')
-
 
     w1 = np.load(tdir+'w1.npy')
     m1 = np.load(tdir+'m1.npy')

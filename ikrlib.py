@@ -292,13 +292,16 @@ def wav16khz2mfcc(dir_name):
     and values and 2D numpy arrays of MFCC features.
     """
     features = {}
+    i = 1
+    l = len(glob(dir_name + '/*.wav'))
     for f in glob(dir_name + '/*.wav'):
-        print('Processing file: ', f)
+        print('Processing file: ', f, '['+str(i)+'/'+str(l)+']', str(int(i/l*100))+' %')
         rate, s = wavfile.read(f)
         assert(rate == 16000)
         # TODO: return after testing
         s = optimize(s)
         features[f] = mfcc(s, 400, 240, 512, 16000, 23, 13)
+        i += 1
     return features
 
 
