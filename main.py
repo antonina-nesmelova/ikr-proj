@@ -24,13 +24,14 @@ def makeDictionary(keys, values):
     return dict(zip(keys, values))
 
 def main():
-
+    global t
     # --train
     if len(sys.argv) == 2 and sys.argv[1] == '--train':
         t = True
         fusion()
     # no argument
     elif len(sys.argv) == 1:
+        t = False
         fusion()
     # bad arguments
     else:
@@ -38,11 +39,12 @@ def main():
         exit()
 
 def fusion():
+    global t
     test_target, test_target_names = img.getFeatures(TARGET_DEV)
     test_nonetarget, test_nonetarget_names = img.getFeatures(NONTARGET_DEV)
     target, target_names = img.getFeatures(TARGET_TRAIN)
     nonetarget, nonetarget_names = img.getFeatures(NONTARGET_TRAIN)
-    if (False):
+    if (t):
         
         #v1, v2, v3 = train.getVectors(target, nonetarget)
 
