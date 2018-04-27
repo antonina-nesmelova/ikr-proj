@@ -18,7 +18,7 @@ NONTARGET_DEV = 'data/non_target_dev'
 TARGET_TRAIN = 'data/target_train'
 NONTARGET_TRAIN = 'data/non_target_train'
 
-REALDATA = True
+REALDATA = False
 train = False
 
 def getSoundScore():
@@ -50,38 +50,53 @@ def getSoundScore():
 
     # read real data
     if REALDATA:
-        loc = 'data'+os.sep+'test'
+        loc = 'data'+os.sep+'eval'
         data,dataname = snd.getFeatures(loc)
         score = {}
         for i,d in enumerate(data):
             score[ dataname[i] ] = snd.classify(d)
         for k in score.keys():
             print(str(k)+' : '+str(score[k]))
+        for k in score.keys():
+            if score[k] > 0:
+                print(k)
         return score
     # cross validation
     else:
         # validate target
         target, target_name = snd.getFeatures( snd.TARGET_DEV )
         target_score = {}
-        for i,record in enumerate(target):
-            target_score[ target_name[i] ] = snd.classify( record )
         # validate nontarget
         nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
         nontarget_score = {}
-        for i,record in enumerate(nontarget):
-            nontarget_score[ nontarget_name[i] ] = snd.classify( record )
-        # evaluate score
-        ts = 0
-        for c in target_score.values():
-            if c > 0:
-                ts += 1
-        ns = 0
-        for c in nontarget_score.values():
-            if c <= 0:
-                ns += 1
-        print("target score:", ts/len(target_score) *100 )
-        print("nontarget score:", ns/len(nontarget_score) *100 )
-
+        max_score = (0,0)
+        treshold = 0
+        for n in range(1000,5000,100):
+            snd.move = n
+            for i,record in enumerate(target):
+                target_score[ target_name[i] ] = snd.classify( record )
+            
+            for i,record in enumerate(nontarget):
+                nontarget_score[ nontarget_name[i] ] = snd.classify( record )
+            # evaluate score
+            ts = 0
+            for c in target_score.values():
+                if c > 0:
+                    ts += 1
+            ns = 0
+            for c in nontarget_score.values():
+                if c <= 0:
+                    ns += 1
+            tscore = ts/len(target_score) *100
+            nscore = ns/len(nontarget_score) *100
+            print("target score:", tscore )
+            print("nontarget score:", nscore )
+            
+            if tscore > max_score[0] and nscore > max_score[1]:
+                max_score = (tscore,nscore)
+                treshold = n
+                print('found', treshold,':',tscore,nscore)
+            
 
 def getImageScore():
     
@@ -157,6 +172,14 @@ def fusion():
     """
     soundSc = getSoundScore()
     imgSc = getImageScore()
+
+    if len(soundSc) != len(imgSc):
+        for s in soundSc.keys():
+            if not s in imgSc.keys():
+                print(str(s)+' only present in sound!')
+        for s in imgSc.keys():
+            if not s in soundSc.keys():
+                print(str(s)+' only present in image!')
 
     assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
 
