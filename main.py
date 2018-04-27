@@ -280,10 +280,10 @@ def getImageScore():
         score_nonetarget = list(map(add, score1_nonetarget, score2_nonetarget))
         score_nonetarget = list(map(add, score_nonetarget, score3_nonetarget))
 
-        score_target            = [(v + 51) * 100 for v in score_target]
-        score_nonetarget        = [(v + 51) * 100 for v in score_nonetarget]
-        score_test_target       = [(v + 51) * 100 for v in score_test_target]
-        score_test_nonetarget   = [(v + 51) * 100 for v in score_test_nonetarget]
+        score_target            = [(v + 100) * 100 for v in score_target]
+        score_nonetarget        = [(v + 100) * 100 for v in score_nonetarget]
+        score_test_target       = [(v + 100) * 100 for v in score_test_target]
+        score_test_nonetarget   = [(v + 100) * 100 for v in score_test_nonetarget]
 
         # TODO: create better represintation of data
         # +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -315,18 +315,18 @@ def fusion():
     min_len_ar = imgSc if len(soundSc) > len(imgSc) else soundSc
     for k in max_len_ar.keys():
         if k not in min_len_ar.keys():
-            print(k)
+            min_len_ar[k] = 0.0
 
     # Assert fails, don't know why
     # assert len(soundSc) == len(imgSc), "Sound recognition number of files is different from image"
 
     border = 10 # TODO: change to some heuristics
 
-    mean1 = sum(map(abs, max_len_ar.values())) / len(max_len_ar)
-    mean2 = sum(map(abs, min_len_ar.values())) / len(min_len_ar)
+    mean1 = sum(map(abs, soundSc.values())) / len(soundSc)
+    mean2 = sum(map(abs, imgSc.values()))   / len(imgSc)
     norm = mean1 / mean2
 
-    result = {k: [v1, max_len_ar[k]] for k, v1 in min_len_ar.items()}
+    result = {k: [v1^5, imgSc[k]^5] for k, v1 in soundSc.items()}
     with open("results.txt", "w") as fus_file:
         for file, results in result.items():
             # Calculation
