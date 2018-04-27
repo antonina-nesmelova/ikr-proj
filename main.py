@@ -185,15 +185,15 @@ def fusion():
     score3_target = train.getScore(target, wf3, mf3, cf3, v3)
     score3_nonetarget = train.getScore(nonetarget, wf3, mf3, cf3, v3)
 
-    score_test_target = map(add, score1_test_target, score2_test_target)
-    score_test_target = map(add, score_test_target, score3_test_target)
-    score_test_nonetarget = map(add, score1_test_nonetarget, score2_test_nonetarget)
-    score_test_nonetarget = map(add, score_test_nonetarget, score3_test_nonetarget)
+    score_test_target = list(map(add, score1_test_target, score2_test_target))
+    score_test_target = list(map(add, score_test_target, score3_test_target))
+    score_test_nonetarget = list(map(add, score1_test_nonetarget, score2_test_nonetarget))
+    score_test_nonetarget = list(map(add, score_test_nonetarget, score3_test_nonetarget))
 
-    score_target = map(add, score1_target, score2_target)
-    score_target = map(add, score_target, score3_target)
-    score_nonetarget = map(add, score1_nonetarget, score2_nonetarget)
-    score_nonetarget = map(add, score_nonetarget, score3_nonetarget)
+    score_target = list(map(add, score1_target, score2_target))
+    score_target = list(map(add, score_target, score3_target))
+    score_nonetarget = list(map(add, score1_nonetarget, score2_nonetarget))
+    score_nonetarget = list(map(add, score_nonetarget, score3_nonetarget))
 
     target_ok = 0
     nonetarget_ok = 0

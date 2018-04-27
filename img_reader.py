@@ -16,7 +16,6 @@ from numpy import mean
 from numpy import cov
 from numpy.linalg import eig
 
-from skimage import filter
 
 def weightedAverage(pixel):
     """ Truns pixel to greyscale. """
