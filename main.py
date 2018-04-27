@@ -56,12 +56,12 @@ def getSoundScore():
 	
     # train classifier
     if train:
-        print("training")
         # get data
         target,_ = snd.getFeatures( snd.TARGET_TRAIN )
         nontarget,_ = snd.getFeatures( snd.NONTARGET_TRAIN )
         # train
         snd.train(mergeWithin(target), mergeWithin(nontarget))
+        exit(0)
     # load classifier
     else:
         snd.load_trained()
@@ -144,7 +144,7 @@ def getImageScore():
     cc=[c1,c2,c3]  # Covariance matrixes 
 
     if REALDATA:
-        loc = 'data'+os.sep+'test'
+        loc = 'data'+os.sep+'eval'
         test, test_names = img.getFeatures(loc)
 
         score1_test = trainLib.getScore(test, ww[0], mm[0], cc[0], v1)
