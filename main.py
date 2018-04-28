@@ -140,7 +140,7 @@ def getImageScore():
         score3_test = trainLib.getScore(test, ww[2], mm[2], cc[2], v3)
         score_test = list(map(add, score1_test, score2_test))
         score_test = list(map(add, score_test, score3_test))
-        score_test       = [(v + 54) for v in score_test]
+        score_test       = [v + 58 for v in score_test]
         # plt.plot(score_test, 'r.', score_test_nonetarget, 'b.')
         return dict(zip(test_names, score_test))
     else:
@@ -268,10 +268,10 @@ def getImageScore():
         score_nonetarget = list(map(add, score1_nonetarget, score2_nonetarget))
         score_nonetarget = list(map(add, score_nonetarget, score3_nonetarget))
 
-        score_target            = [(v + 60) * 100 for v in score_target]
-        score_nonetarget        = [(v + 60) * 100 for v in score_nonetarget]
-        score_test_target       = [(v + 60) * 100 for v in score_test_target]
-        score_test_nonetarget   = [(v + 60) * 100 for v in score_test_nonetarget]
+        score_target            = [v + 58 for v in score_target]
+        score_nonetarget        = [v + 58 for v in score_nonetarget]
+        score_test_target       = [v + 58 for v in score_test_target]
+        score_test_nonetarget   = [v + 58 for v in score_test_nonetarget]
 
         # TODO: create better represintation of data
         # +++++++++++++++++++++++++++++++++++++++++++++++++
@@ -342,11 +342,10 @@ def fusion():
     mean2 = sum(map(abs, imgSc.values()))   / len(imgSc)
     norm = mean1 / mean2
 
-    result = {k: [v1**5, imgSc[k]**5] for k, v1 in soundSc.items()}
+    result = {k: [v1*norm, imgSc[k]] for k, v1 in soundSc.items()}
     with open("results.txt", "w") as fus_file:
         for file, results in result.items():
             # Calculation
-            # TODO: set sound score as primary score via magic multiplier
             res_sum = results[0] + results[1]
 
             print("File: - {}\nSound {}\tImage {}\tScore {}".format(file, soundSc[file], imgSc[file], res_sum))
