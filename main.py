@@ -305,6 +305,8 @@ def fusion():
             fus_file.write("{name} {res_sum} {fus_res}\n".format(
                     name=file, res_sum=float(imgSc[file]), fus_res=int(float(imgSc[file]) > 0)))
     exit()
+
+    
     with open("sound-results.txt", "w") as fus_file:
         for file in soundSc.keys():
             fus_file.write("{name} {res_sum} {fus_res}\n".format(
