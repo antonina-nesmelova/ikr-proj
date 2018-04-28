@@ -78,41 +78,29 @@ def getSoundScore():
         return score
     # cross validation
     else:
-        # validate target
+        # load
         target, target_name = snd.getFeatures( snd.TARGET_DEV )
-        target_score = {}
-        for i,record in enumerate(target):
-            target_score[ target_name[i] ] = snd.classify( record )
-        # validate nontarget
         nontarget, nontarget_name = snd.getFeatures( snd.NONTARGET_DEV )
-        nontarget_score = {}
-        max_score = (0,0)
-        treshold = 0
-        for n in range(1000,5000,100):
-            snd.move = n
-            for i,record in enumerate(target):
-                target_score[ target_name[i] ] = snd.classify( record )
-            
-            for i,record in enumerate(nontarget):
-                nontarget_score[ nontarget_name[i] ] = snd.classify( record )
-            # evaluate score
-            ts = 0
-            for c in target_score.values():
-                if c > 0:
-                    ts += 1
-            ns = 0
-            for c in nontarget_score.values():
-                if c <= 0:
-                    ns += 1
-            tscore = ts/len(target_score) *100
-            nscore = ns/len(nontarget_score) *100
-            print("target score:", tscore )
-            print("nontarget score:", nscore )
-            
-            if tscore > max_score[0] and nscore > max_score[1]:
-                max_score = (tscore,nscore)
-                treshold = n
-                print('found', treshold,':',tscore,nscore)
+        # validate
+        score = {}
+        for i,record in enumerate(target):
+            score[ target_name[i] ] = snd.classify( record )
+        for i,record in enumerate(nontarget):
+            score[ nontarget_name[i] ] = snd.classify( record )
+        # evaluate score
+        #ts = 0
+        #for c in target_score.values():
+        #    if c > 0:
+        #        ts += 1
+        #ns = 0
+        #for c in nontarget_score.values():
+        #    if c <= 0:
+        #        ns += 1
+        #tscore = ts/len(target_score) *100
+        #nscore = ns/len(nontarget_score) *100
+        #print("target score:", tscore )
+        #print("nontarget score:", nscore )
+        return score 
             
 
 def getImageScore():
@@ -152,7 +140,7 @@ def getImageScore():
         score3_test = trainLib.getScore(test, ww[2], mm[2], cc[2], v3)
         score_test = list(map(add, score1_test, score2_test))
         score_test = list(map(add, score_test, score3_test))
-        score_test       = [(v + 60) * 100 for v in score_test]
+        score_test       = [(v + 54) for v in score_test]
         # plt.plot(score_test, 'r.', score_test_nonetarget, 'b.')
         return dict(zip(test_names, score_test))
     else:
@@ -295,11 +283,11 @@ def getImageScore():
         # +++++++++++++++++++++++++++++++++++++++++++++++++
 
         # TODO: classify only real data
-        dic = dict(zip(target_names, score_target))
-        dic = {**dic ,**dict(zip(nonetarget_names, score_nonetarget))}
-        dic = {**dic ,**dict(zip(test_target_names, score_test_target))}
+        dic = dict(zip(test_target_names, score_test_target))
+        #dic = {**dic ,**dict(zip(nonetarget_names, score_nonetarget))}
+        #dic = {**dic ,**dict(zip(test_target_names, score_test_target))}
         dic = {**dic ,**dict(zip(test_nonetarget_names, score_test_nonetarget))}
-        print(len(dic))
+        #print(len(dic))
         return dic
 
 def fusion():
@@ -308,9 +296,37 @@ def fusion():
     """
 
     imgSc = getImageScore()
-    soundSc = getSoundScore()
+    #soundSc = getSoundScore()
 
-    print(len(soundSc), len(imgSc))
+    #assert(len(imgSc) == len(soundSc))
+    
+    with open("image-results.txt", "w") as fus_file:
+        for file in imgSc.keys():
+            fus_file.write("{name} {res_sum} {fus_res}\n".format(
+                    name=file, res_sum=float(imgSc[file]), fus_res=int(float(imgSc[file]) > 0)))
+    exit()
+    with open("sound-results.txt", "w") as fus_file:
+        for file in soundSc.keys():
+            fus_file.write("{name} {res_sum} {fus_res}\n".format(
+                    name=file, res_sum=float(soundSc[file]), fus_res=int(float(soundSc[file]) > 0)))
+
+    res = {}
+    for k in imgSc.keys():
+        res[k] = imgSc[k] + soundSc[k]
+    
+    #for r in res.keys():
+    #    print(r,':',res[r])
+    
+    with open("results.txt", "w") as fus_file:
+        for file in res.keys():
+            fus_file.write("{name} {res_sum} {fus_res}\n".format(
+                    name=file, res_sum=float(res[file]), fus_res=int(float(res[file]) > 0)))
+    exit()
+
+    #print(imgSc)
+    #print(soundSc)
+
+    #print(len(soundSc), len(imgSc))
     max_len_ar = soundSc if len(soundSc) > len(imgSc) else imgSc
     min_len_ar = imgSc if len(soundSc) > len(imgSc) else soundSc
     for k in max_len_ar.keys():
