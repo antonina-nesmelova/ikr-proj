@@ -11,6 +11,9 @@ from numpy.random import randint
 RANGE = 30
 
 def transformData(data, v, transform=True):
+    """
+    Transforms given data using v.
+    """
     D = data
     M = mean(D.T, axis=1)
 
@@ -22,7 +25,9 @@ def transformData(data, v, transform=True):
     return data
 
 def getVectors(target, nonetarget):
-    
+    """
+    Returns eigen vectors of given x1 and x2 data.
+    """
     result_array = np.vstack([target, nonetarget])
     A = result_array
     # calculate the mean of each column
@@ -35,7 +40,7 @@ def getVectors(target, nonetarget):
     V = cov(C.T)
     # eigendecomposition of covariance matrix
     dim = target.shape[1]
-    print('Getting vectors')
+    #print('Getting vectors')
     values, vectors = scipy.linalg.eigh(V,  eigvals=(dim-2, dim-1))
     values1, vectors1 = scipy.linalg.eigh(V,  eigvals=(dim-3, dim-2))
     values2, vectors2 = scipy.linalg.eigh(V,  eigvals=(dim-4, dim-3))
@@ -43,6 +48,9 @@ def getVectors(target, nonetarget):
     return vectors, vectors1, vectors2
 
 def getGauss(target, nonetarget, vectors, vectors1, vectors2, test_target, test_nonetarget):
+    """
+    Returns trained GMM gausses.
+    """
     # dostaneme vlastni vektory##################
 
     # calculate the mean of each column
@@ -104,7 +112,7 @@ def getGauss(target, nonetarget, vectors, vectors1, vectors2, test_target, test_
     for i in range(RANGE):
         ws1, mus1, covs1, ttl1 = train_gmm(tar, ws1, mus1, covs1)
     #    ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
-        print('Total log-likelihood: %s for class X1;' % (ttl1))
+        #print('Total log-likelihood: %s for class X1;' % (ttl1))
 
     tar = np.vstack([tar, ttar])
     ntar = np.vstack([ntar, tntar])
@@ -147,7 +155,7 @@ def getGauss(target, nonetarget, vectors, vectors1, vectors2, test_target, test_
     for i in range(RANGE):
         ws1, mus1, covs1, ttl1 = train_gmm(tar, ws1, mus1, covs1)
     #    ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
-        print('Total log-likelihood: %s for class X1;' % (ttl1))
+        #print('Total log-likelihood: %s for class X1;' % (ttl1))
     tar = np.vstack([tar, ttar])
     ntar = np.vstack([ntar, tntar])
 
@@ -202,7 +210,7 @@ def getGauss(target, nonetarget, vectors, vectors1, vectors2, test_target, test_
     for i in range(RANGE):
         ws1, mus1, covs1, ttl1 = train_gmm(tar, ws1, mus1, covs1)
     #    ws2, mus2, covs2, ttl2 = train_gmm(ntar, ws2, mus2, covs2)
-        print('Total log-likelihood: %s for class X1;' % (ttl1))
+        #print('Total log-likelihood: %s for class X1;' % (ttl1))
 
     
     ntar = np.vstack([ntar, tntar])
@@ -220,6 +228,9 @@ def getGauss(target, nonetarget, vectors, vectors1, vectors2, test_target, test_
     return [fw, sw, tw], [fm, sm, tm], [fc, sc, tc]
 
 def multByVectors(data, vectors):
+    """
+    Multiplies data by given vectors.
+    """
     M = mean(data.T, axis=1)
     data = (data - M).dot(vectors)
     for i in range(data.shape[0]):
@@ -228,9 +239,10 @@ def multByVectors(data, vectors):
     return data
 
 def getScore(test, ws, mus, covs, vector):
-    # print('In getScore')
+    """
+    Counts score on trained model.
+    """
     test = transformData(test, vector, False)
-
     t = 0.5  # Aprior probability for face recognition  
 
     score=[]

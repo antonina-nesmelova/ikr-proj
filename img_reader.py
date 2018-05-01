@@ -25,6 +25,7 @@ def weightedAverage(pixel):
 
 
 def getFeatures(target_name):
+    """ Reads features from the given directory name. """
     result_array = np.array([])
     names = []
     f_count = 0

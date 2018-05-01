@@ -133,3 +133,6 @@ def classify(record):
             mscore -= ikr.logpdf_gauss(sample,mu,cov)*ws
         score += mscore
     return score + move
+
+if __name__ == "__main__":
+    raise NotImplementedError('This module is not executable!')
